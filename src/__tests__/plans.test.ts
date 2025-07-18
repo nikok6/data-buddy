@@ -70,4 +70,29 @@ describe('Plans API', () => {
     expect(result.data.length).toBe(2);
     expect(result.data.every((plan: DataPlan) => plan.provider === 'Starhub')).toBe(true);
   });
+  
+  it('GET /api/plans should return empty array for invalid provider', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: '/api/plans?provider=InvalidProvider',
+    });
+
+    expect(response.statusCode).toBe(200);
+    const result = response.json();
+    expect(result.success).toBe(true);
+    expect(result.data).toHaveLength(0);
+  });
+
+  it('GET /api/plans should be case insensitive for provider filter', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: '/api/plans?provider=starHUB',
+    });
+
+    expect(response.statusCode).toBe(200);
+    const result = response.json();
+    expect(result.success).toBe(true);
+    expect(result.data.length).toBe(2);
+    expect(result.data.every((plan: DataPlan) => plan.provider.toLowerCase() === 'starhub'.toLowerCase())).toBe(true);
+  });
 });

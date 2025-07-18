@@ -43,10 +43,40 @@ export const importCsvService = async (file: MultipartFile): Promise<ImportResul
     newSubscribers: 0,
   };
 
+  const buffer = await file.toBuffer();
+  if (buffer.length === 0) {
+    throw new Error('Empty CSV file');
+  }
+
   const parser = parse({
-    columns: true,
+    columns: (headers) => {
+      const requiredColumns = ['phone_number', 'plan_id', 'date', 'usage_in_mb'];
+      const parsedHeaders = headers.map(h => h.trim().toLowerCase());
+      const missingColumns = requiredColumns.filter(col => !parsedHeaders.includes(col));
+      
+      if (missingColumns.length > 0) {
+        throw new Error(`Missing required columns: ${missingColumns.join(', ')}`);
+      }
+      return parsedHeaders;
+    },
     skip_empty_lines: true,
   });
+
+  // Process the file stream
+  const stream = Readable.from(buffer);
+  const rows: CsvRow[] = [];
+  
+  await new Promise((resolve, reject) => {
+    stream
+      .pipe(parser)
+      .on('data', (row) => rows.push(row))
+      .on('end', resolve)
+      .on('error', reject);
+  });
+
+  if (rows.length === 0) {
+    return result;
+  }
 
   const processRow = async (row: CsvRow) => {
     result.totalProcessed++;
@@ -141,19 +171,6 @@ export const importCsvService = async (file: MultipartFile): Promise<ImportResul
       }
     }
   };
-
-  // Process the file stream
-  const buffer = await file.toBuffer();
-  const stream = Readable.from(buffer);
-
-  const rows: CsvRow[] = [];
-  await new Promise((resolve, reject) => {
-    stream
-      .pipe(parser)
-      .on('data', (row) => rows.push(row))
-      .on('end', resolve)
-      .on('error', reject);
-  });
 
   // Process rows sequentially
   for (const row of rows) {

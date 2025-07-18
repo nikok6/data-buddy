@@ -243,4 +243,86 @@ describe('CSV Import API', () => {
     expect(subscriber).toBeTruthy();
     expect(subscriber?.plan.planId).toBe('plan_3');
   });
+
+  it('should handle empty CSV file and files with only headers', async () => {
+    // Test completely empty file
+    const emptyForm = createFormData('');
+    const emptyResponse = await app.inject({
+      method: 'POST',
+      url: '/api/import-csv',
+      payload: emptyForm,
+      headers: emptyForm.getHeaders(),
+    });
+
+    expect(emptyResponse.statusCode).toBe(400);
+    expect(JSON.parse(emptyResponse.payload)).toEqual({
+      success: false,
+      error: 'Empty CSV file'
+    });
+
+    // Test file with only headers
+    const headerOnlyForm = createFormData('phone_number,plan_id,date,usage_in_mb\n');
+    const headerResponse = await app.inject({
+      method: 'POST',
+      url: '/api/import-csv',
+      payload: headerOnlyForm,
+      headers: headerOnlyForm.getHeaders(),
+    });
+
+    expect(headerResponse.statusCode).toBe(200);
+    const headerResult = JSON.parse(headerResponse.payload);
+    expect(headerResult.success).toBe(true);
+    expect(headerResult.data.imported).toBe(0);
+  });
+
+  it('should handle missing required columns in CSV', async () => {
+    const missingColumns = [
+      // Missing phone_number
+      'plan_id,date,usage_in_mb\n' +
+      'plan_1,1735862400000,500',
+      // Missing plan_id
+      'phone_number,date,usage_in_mb\n' +
+      '80000000,1735862400000,500',
+      // Missing date
+      'phone_number,plan_id,usage_in_mb\n' +
+      '80000000,plan_1,500',
+      // Missing usage_in_mb
+      'phone_number,plan_id,date\n' +
+      '80000000,plan_1,1735862400000'
+    ];
+
+    for (const csvContent of missingColumns) {
+      const form = createFormData(csvContent);
+      const response = await app.inject({
+        method: 'POST',
+        url: '/api/import-csv',
+        payload: form,
+        headers: form.getHeaders(),
+      });
+
+      expect(response.statusCode).toBe(400);
+      const result = JSON.parse(response.payload);
+      expect(result.success).toBe(false);
+      expect(result.error).toMatch(/Missing required column/);
+    }
+  });
+
+  it('should handle extra/unknown columns in CSV', async () => {
+    const csvContent = 
+      'phone_number,plan_id,date,usage_in_mb,extra_column1,extra_column2\n' +
+      '80000000,plan_1,1735862400000,500,extra1,extra2';
+
+    const form = createFormData(csvContent);
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/import-csv',
+      payload: form,
+      headers: form.getHeaders(),
+    });
+
+    expect(response.statusCode).toBe(200);
+    const result = JSON.parse(response.payload);
+    expect(result.success).toBe(true);
+    expect(result.data.imported).toBe(1);
+  });
 }); 

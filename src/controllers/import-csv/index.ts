@@ -52,8 +52,16 @@ export const importCsvController = async (
     console.error('Error importing CSV:', error);
     const response: ApiResponse<never> = {
       success: false,
-      error: 'Failed to import CSV file'
+      error: error instanceof Error ? error.message : 'Failed to import CSV file'
     };
+    
+    // Handle validation errors with 400 status
+    if (error instanceof Error && 
+        (error.message === 'Empty CSV file' || 
+         error.message.startsWith('Missing required columns'))) {
+      return reply.status(400).send(response);
+    }
+    
     return reply.status(500).send(response);
   }
 }; 
