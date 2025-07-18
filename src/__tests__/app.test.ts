@@ -1,36 +1,73 @@
-import { buildApp } from "../app";
-import { FastifyInstance } from "fastify";
-import { availableDataPlans } from "../config/seed";
+import { FastifyInstance } from 'fastify';
+import { buildApp } from '../app';
+import { PrismaClient, DataPlan } from '@prisma/client';
+import { availableDataPlans } from '../config/seed';
 
-let app: FastifyInstance;
+const prisma = new PrismaClient();
 
-beforeAll(() => {
-  app = buildApp();
-});
+describe('Plans API', () => {
+  let app: FastifyInstance;
 
-afterAll(() => {
-  app.close();
-});
-
-test("GET /plans should return all available plans", async () => {
-  const response = await app.inject({
-    method: "GET",
-    url: "/plans",
+  beforeAll(async () => {
+    app = buildApp();
+    await app.ready();
   });
 
-  expect(response.statusCode).toBe(200);
-  expect(response.json()).toEqual({ success: true, data: availableDataPlans });
-});
-
-test("GET /plans should filter by provider", async () => {
-  const response = await app.inject({
-    method: "GET",
-    url: "/plans",
-    query: { provider: "Starhub" },
+  beforeEach(async () => {
+    // Clean up and seed the database before each test
+    await prisma.$transaction([
+      prisma.usage.deleteMany(),
+      prisma.subscriber.deleteMany(),
+      prisma.dataPlan.deleteMany(),
+    ]);
+    
+    // Seed the data plans
+    await prisma.$transaction(
+      availableDataPlans.map((plan) =>
+        prisma.dataPlan.create({
+          data: {
+            planId: plan.id,
+            provider: plan.provider,
+            name: plan.name,
+            dataFreeInGB: plan.dataFreeInGB,
+            billingCycleInDays: plan.billingCycleInDays,
+            price: plan.price,
+            excessChargePerMB: plan.excessChargePerMB,
+          },
+        })
+      )
+    );
   });
 
-  expect(response.statusCode).toBe(200);
-  const responseData = response.json();
-  expect(responseData.success).toBe(true);
-  expect(responseData.data.length).toBe(2);
+  afterAll(async () => {
+    await prisma.$disconnect();
+    await app.close();
+  });
+
+  it('GET /api/plans should return all available plans', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: '/api/plans',
+    });
+
+    expect(response.statusCode).toBe(200);
+    const result = response.json();
+    expect(result.success).toBe(true);
+    expect(result.data).toHaveLength(availableDataPlans.length);
+    expect(result.data.map((plan: DataPlan) => plan.planId).sort())
+      .toEqual(availableDataPlans.map(plan => plan.id).sort());
+  });
+
+  it('GET /api/plans should filter by provider', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: '/api/plans?provider=Starhub',
+    });
+
+    expect(response.statusCode).toBe(200);
+    const result = response.json();
+    expect(result.success).toBe(true);
+    expect(result.data.length).toBe(2);
+    expect(result.data.every((plan: DataPlan) => plan.provider === 'Starhub')).toBe(true);
+  });
 });

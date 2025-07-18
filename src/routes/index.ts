@@ -1,21 +1,13 @@
-import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { ApiResponse, DataPlan } from '../types';
-import { availableDataPlans } from '../config/seed';
+import { FastifyPluginAsync } from 'fastify';
+import importCsvRoutes from './import-csv';
+import plansRoutes from './plans';
 
-export default async function routes(fastify: FastifyInstance) {
-  fastify.get('/plans', async (request: FastifyRequest, _reply: FastifyReply) => {
-    const { provider } = request.query as { provider?: string };
-    
-    let plans: DataPlan[] = availableDataPlans;
-    if (provider) {
-      plans = plans.filter((plan) => plan.provider === provider);
-    }
+const routes: FastifyPluginAsync = async (fastify) => {
+  // Register import-csv routes
+  await fastify.register(importCsvRoutes);
 
-    const res: ApiResponse<DataPlan[]> = {
-      success: true,
-      data: plans,
-    };
+  // Register plans routes
+  await fastify.register(plansRoutes);
+};
 
-    return res;
-  });
-}
+export default routes;

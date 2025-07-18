@@ -1,0 +1,47 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model DataPlan {
+  id                 Int         @id @default(autoincrement())
+  planId            String      @unique // e.g. "plan_1"
+  provider          String
+  name              String
+  dataFreeInGB      Float
+  billingCycleInDays Int
+  price             Float
+  excessChargePerMB Float
+  subscribers       Subscriber[]
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+}
+
+model Subscriber {
+  id          Int      @id @default(autoincrement())
+  phoneNumber String   @unique
+  plan        DataPlan @relation(fields: [planId], references: [id])
+  planId      Int
+  usages      Usage[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Usage {
+  id           Int        @id @default(autoincrement())
+  subscriber   Subscriber @relation(fields: [subscriberId], references: [id])
+  subscriberId Int
+  date         DateTime
+  usageInMB    Int
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([subscriberId, date])
+}
