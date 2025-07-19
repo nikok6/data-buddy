@@ -96,3 +96,5 @@ describe('Plans API', () => {
     expect(result.data.every((plan: DataPlan) => plan.provider.toLowerCase() === 'starhub'.toLowerCase())).toBe(true);
   });
 });
+
+// create test on service layer

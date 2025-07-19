@@ -1,13 +1,10 @@
-import { FastifyPluginAsync } from 'fastify';
-import importCsvRoutes from './import-csv';
+import { FastifyInstance } from 'fastify';
 import plansRoutes from './plans';
+import importCsvRoutes from './import-csv';
+import billingRoutes from './billing';
 
-const routes: FastifyPluginAsync = async (fastify) => {
-  // Register import-csv routes
-  await fastify.register(importCsvRoutes);
-
-  // Register plans routes
-  await fastify.register(plansRoutes);
-};
-
-export default routes;
+export default async function (fastify: FastifyInstance) {
+  fastify.register(plansRoutes);
+  fastify.register(importCsvRoutes);
+  fastify.register(billingRoutes);
+}

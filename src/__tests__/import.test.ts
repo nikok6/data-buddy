@@ -88,7 +88,7 @@ describe('CSV Import API', () => {
       where: { phoneNumber: '80000000' },
       include: { usages: true },
     });
-    
+
     expect(subscriber).toBeTruthy();
     expect(subscriber?.usages.length).toBe(2);
   });
@@ -326,3 +326,5 @@ describe('CSV Import API', () => {
     expect(result.data.imported).toBe(1);
   });
 }); 
+
+// create test on service layer
