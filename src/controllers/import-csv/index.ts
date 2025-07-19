@@ -49,7 +49,6 @@ export const importCsvController = async (
       }
     }
     
-    console.error('Error importing CSV:', error);
     const response: ApiResponse<never> = {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to import CSV file'
