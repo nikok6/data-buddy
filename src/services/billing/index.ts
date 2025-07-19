@@ -1,7 +1,9 @@
-import { PrismaClient } from '@prisma/client';
 import { BillingReport, BillingCycle } from '../../types';
+import { UsageRepository } from '../../repositories/usage-repository';
+import { SubscriberRepository } from '../../repositories/subscriber-repository';
 
-const prisma = new PrismaClient();
+const usageRepository = new UsageRepository();
+const subscriberRepository = new SubscriberRepository();
 
 const GB_TO_MB = 1024;
 
@@ -14,10 +16,7 @@ export class SubscriberNotFoundError extends Error {
 
 export const getBillingReportService = async (phoneNumber: string): Promise<BillingReport> => {
   // Find subscriber with their current plan
-  const subscriber = await prisma.subscriber.findUnique({
-    where: { phoneNumber },
-    include: { plan: true }
-  });
+  const subscriber = await subscriberRepository.findByPhoneNumber(phoneNumber);
 
   if (!subscriber) {
     throw new SubscriberNotFoundError(phoneNumber);
@@ -31,16 +30,11 @@ export const getBillingReportService = async (phoneNumber: string): Promise<Bill
   startDate.setHours(0, 0, 0, 0);
 
   // Find all usage records within the date range
-  const usageRecords = await prisma.usage.findMany({
-    where: {
-      subscriberId: subscriber.id,
-      date: {
-        gte: startDate, 
-        lte: endDate
-      }
-    },
-    orderBy: { date: 'asc' }
-  });
+  const usageRecords = await usageRepository.findUsageInDateRange(phoneNumber, startDate, endDate);
+
+  if (!usageRecords) {
+    throw new SubscriberNotFoundError(phoneNumber);
+  }
 
   // Calculate billing cycles within the date range
   const billingCycles: BillingCycle[] = [];
@@ -57,7 +51,7 @@ export const getBillingReportService = async (phoneNumber: string): Promise<Bill
     if (cycleEndDate <= endDate) {
       const cycleUsage = usageRecords.filter(usage => 
         usage.date >= cycleStartDate && usage.date <= cycleEndDate
-    );
+      );
 
       const totalUsageInMB = cycleUsage.reduce((sum, usage) => sum + usage.usageInMB, 0);
       const includedDataInMB = subscriber.plan.dataFreeInGB * GB_TO_MB;

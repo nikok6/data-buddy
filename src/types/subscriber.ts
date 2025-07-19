@@ -1,5 +1,5 @@
 export interface Subscriber {
-  id: string;
+  id: number;
   phoneNumber: string;
-  planId: string;
+  planId: number;
 }

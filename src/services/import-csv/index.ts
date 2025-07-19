@@ -1,9 +1,9 @@
 import { MultipartFile } from '@fastify/multipart';
 import { parse } from 'csv-parse';
-import { PrismaClient, Prisma } from '@prisma/client';
 import { Readable } from 'stream';
+import { ImportRepository } from '../../repositories/import-repository';
 
-const prisma = new PrismaClient();
+const importRepository = new ImportRepository();
 
 interface CsvRow {
   phone_number: string;
@@ -103,72 +103,30 @@ export const importCsvService = async (file: MultipartFile): Promise<ImportResul
     const date = new Date(timestamp);
 
     try {
-      await prisma.$transaction(async (tx) => {
-        // Find the data plan first
-        const dataPlan = await tx.dataPlan.findUnique({
-          where: { planId: row.plan_id },
-        });
-
-        if (!dataPlan) {
-          result.skipped.invalid.invalidPlanId++;
-          return;
-        }
-
-        // Find or create subscriber
-        let subscriber = await tx.subscriber.findUnique({
-          where: { phoneNumber: row.phone_number },
-        });
-
-        if (!subscriber) {
-          subscriber = await tx.subscriber.create({
-            data: {
-              phoneNumber: row.phone_number,
-              planId: dataPlan.id,
-            },
-          });
-          result.newSubscribers++;
-        } else if (subscriber.planId !== dataPlan.id) {
-          subscriber = await tx.subscriber.update({
-            where: { id: subscriber.id },
-            data: { planId: dataPlan.id },
-          });
-        }
-
-        // Check for existing usage record
-        const existingUsage = await tx.usage.findFirst({
-          where: {
-            subscriberId: subscriber.id,
-            date,
-          },
-        });
-
-        if (existingUsage) {
-          result.skipped.duplicates++;
-          return;
-        }
-
-        // Create usage record
-        await tx.usage.create({
-          data: {
-            subscriberId: subscriber.id,
-            date,
-            usageInMB,
-          },
-        });
-        result.imported++;
+      const importResult = await importRepository.importUsageData({
+        phoneNumber: row.phone_number,
+        planId: row.plan_id,
+        date,
+        usageInMB
       });
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
+
+      switch (importResult.status) {
+        case 'success':
+          result.imported++;
+          if (importResult.isNewSubscriber) {
+            result.newSubscribers++;
+          }
+          break;
+        case 'duplicate':
           result.skipped.duplicates++;
-        } else {
-          console.error('Error processing row:', error);
-          throw error;
-        }
-      } else {
-        console.error('Error processing row:', error);
-        throw error;
+          break;
+        case 'invalid_plan':
+          result.skipped.invalid.invalidPlanId++;
+          break;
       }
+    } catch (error) {
+      console.error('Error processing row:', error);
+      throw error;
     }
   };
 
