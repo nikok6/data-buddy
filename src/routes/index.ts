@@ -1,10 +1,12 @@
 import { FastifyInstance } from 'fastify';
 import plansRoutes from './plans';
-import importCsvRoutes from './import-csv';
 import billingRoutes from './billing';
+import importCsvRoutes from './import-csv';
+import subscriberRoutes from './subscribers';
 
-export default async function (fastify: FastifyInstance) {
+export default async function routes(fastify: FastifyInstance) {
   fastify.register(plansRoutes);
-  fastify.register(importCsvRoutes);
   fastify.register(billingRoutes);
+  fastify.register(importCsvRoutes);
+  fastify.register(subscriberRoutes);
 }
