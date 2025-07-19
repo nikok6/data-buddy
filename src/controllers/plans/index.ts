@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { getPlansService } from '../../services/plans';
-import { ApiResponse } from '../../types';
+import { getPlansService, createPlanService, updatePlanService } from '../../services/plans';
+import { ApiResponse, DataPlan } from '../../types';
 
 export const getPlansController = async (
   request: FastifyRequest,
@@ -22,6 +22,59 @@ export const getPlansController = async (
     const response: ApiResponse<never> = {
       success: false,
       error: 'Failed to fetch plans'
+    };
+    return reply.status(500).send(response);
+  }
+};
+
+export const createPlanController = async (
+  request: FastifyRequest<{ Body: DataPlan }>,
+  reply: FastifyReply
+) => {
+  try {
+    const planData = request.body;
+    const newPlan = await createPlanService(planData);
+    
+    const response: ApiResponse<typeof newPlan> = {
+      success: true,
+      data: newPlan,
+    };
+
+    return reply.status(201).send(response);
+  } catch (error) {
+    console.error('Error creating plan:', error);
+    const response: ApiResponse<never> = {
+      success: false,
+      error: 'Failed to create plan'
+    };
+    return reply.status(500).send(response);
+  }
+};
+
+export const updatePlanController = async (
+  request: FastifyRequest<{ 
+    Params: { id: string };
+    Body: DataPlan;
+  }>,
+  reply: FastifyReply
+) => {
+  try {
+    const { id } = request.params;
+    const planData = request.body;
+    
+    const updatedPlan = await updatePlanService(parseInt(id, 10), planData);
+    
+    const response: ApiResponse<typeof updatedPlan> = {
+      success: true,
+      data: updatedPlan,
+    };
+
+    return reply.send(response);
+  } catch (error) {
+    console.error('Error updating plan:', error);
+    const response: ApiResponse<never> = {
+      success: false,
+      error: 'Failed to update plan'
     };
     return reply.status(500).send(response);
   }
