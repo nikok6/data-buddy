@@ -149,7 +149,6 @@ describe('Billing Service', () => {
       mockUsageRepository.findUsageInDateRange.mockResolvedValue(usageRecords);
 
       const result = await getBillingReportService(phoneNumber);
-      console.log(result)
 
       expect(result.billingCycles).toHaveLength(1); // Only complete cycles
       expect(result.billingCycles[0]).toMatchObject({
@@ -188,7 +187,6 @@ describe('Billing Service', () => {
       mockUsageRepository.findUsageInDateRange.mockResolvedValue([]);
 
       const result = await getBillingReportService(phoneNumber);
-      console.log(result);
 
       const expectedStartDate = new Date('2024-01-03');
       const expectedEndDate = new Date('2024-01-31');

@@ -9,6 +9,7 @@ import {
   InvalidPhoneNumberError,
   SubscriberExistsError
 } from '../../services/subscribers';
+import { ApiResponse } from '../../types';
 
 interface CreateSubscriberBody {
   phoneNumber: string;
@@ -31,10 +32,17 @@ interface GetSubscriberByPhoneQuery {
 export const getAllSubscribersController = async (_request: FastifyRequest, reply: FastifyReply) => {
   try {
     const subscribers = await getAllSubscribersService();
-    return reply.send(subscribers);
+    const response: ApiResponse<typeof subscribers> = {
+      success: true,
+      data: subscribers
+    };
+    return reply.send(response);
   } catch (error) {
-    console.error('Error getting all subscribers:', error);
-    return reply.status(500).send({ error: 'Internal server error' });
+    const response: ApiResponse<never> = {
+      success: false,
+      error: 'Internal server error'
+    };
+    return reply.status(500).send(response);
   }
 };
 
@@ -44,18 +52,33 @@ export const getSubscriberByIdController = async (
 ) => {
   const id = parseInt(request.params.id);
   if (isNaN(id)) {
-    return reply.status(400).send({ error: 'Invalid ID format' });
+    const response: ApiResponse<never> = {
+      success: false,
+      error: 'Invalid ID format'
+    };
+    return reply.status(400).send(response);
   }
 
   try {
     const subscriber = await getSubscriberByIdService(id);
-    return reply.send(subscriber);
+    const response: ApiResponse<typeof subscriber> = {
+      success: true,
+      data: subscriber
+    };
+    return reply.send(response);
   } catch (error) {
     if (error instanceof SubscriberNotFoundError) {
-      return reply.status(404).send({ error: error.message });
+      const response: ApiResponse<never> = {
+        success: false,
+        error: error.message
+      };
+      return reply.status(404).send(response);
     }
-    console.error('Error getting subscriber by ID:', error);
-    return reply.status(500).send({ error: 'Internal server error' });
+    const response: ApiResponse<never> = {
+      success: false,
+      error: 'Internal server error'
+    };
+    return reply.status(500).send(response);
   }
 };
 
@@ -65,21 +88,40 @@ export const getSubscriberByPhoneController = async (
 ) => {
   const { phoneNumber } = request.query;
   if (!phoneNumber) {
-    return reply.status(400).send({ error: 'Phone number is required' });
+    const response: ApiResponse<never> = {
+      success: false,
+      error: 'Phone number is required'
+    };
+    return reply.status(400).send(response);
   }
 
   try {
     const subscriber = await getSubscriberByPhoneService(phoneNumber);
-    return reply.send(subscriber);
+    const response: ApiResponse<typeof subscriber> = {
+      success: true,
+      data: subscriber
+    };
+    return reply.send(response);
   } catch (error) {
     if (error instanceof SubscriberNotFoundError) {
-      return reply.status(404).send({ error: error.message });
+      const response: ApiResponse<never> = {
+        success: false,
+        error: error.message
+      };
+      return reply.status(404).send(response);
     }
     if (error instanceof InvalidPhoneNumberError) {
-      return reply.status(400).send({ error: error.message });
+      const response: ApiResponse<never> = {
+        success: false,
+        error: error.message
+      };
+      return reply.status(400).send(response);
     }
-    console.error('Error getting subscriber by phone:', error);
-    return reply.status(500).send({ error: 'Internal server error' });
+    const response: ApiResponse<never> = {
+      success: false,
+      error: 'Internal server error'
+    };
+    return reply.status(500).send(response);
   }
 };
 
@@ -91,16 +133,31 @@ export const createSubscriberController = async (
 
   try {
     const subscriber = await createSubscriberService(phoneNumber, planId);
-    return reply.status(201).send(subscriber);
+    const response: ApiResponse<typeof subscriber> = {
+      success: true,
+      data: subscriber
+    };
+    return reply.status(201).send(response);
   } catch (error) {
     if (error instanceof InvalidPhoneNumberError) {
-      return reply.status(400).send({ error: error.message });
+      const response: ApiResponse<never> = {
+        success: false,
+        error: error.message
+      };
+      return reply.status(400).send(response);
     }
     if (error instanceof SubscriberExistsError) {
-      return reply.status(409).send({ error: error.message });
+      const response: ApiResponse<never> = {
+        success: false,
+        error: error.message
+      };
+      return reply.status(409).send(response);
     }
-    console.error('Error creating subscriber:', error);
-    return reply.status(500).send({ error: 'Internal server error' });
+    const response: ApiResponse<never> = {
+      success: false,
+      error: 'Internal server error'
+    };
+    return reply.status(500).send(response);
   }
 };
 
@@ -110,20 +167,39 @@ export const updateSubscriberController = async (
 ) => {
   const id = parseInt(request.params.id);
   if (isNaN(id)) {
-    return reply.status(400).send({ error: 'Invalid ID format' });
+    const response: ApiResponse<never> = {
+      success: false,
+      error: 'Invalid ID format'
+    };
+    return reply.status(400).send(response);
   }
 
   try {
     const updatedSubscriber = await updateSubscriberService(id, request.body);
-    return reply.send(updatedSubscriber);
+    const response: ApiResponse<typeof updatedSubscriber> = {
+      success: true,
+      data: updatedSubscriber
+    };
+    return reply.send(response);
   } catch (error) {
     if (error instanceof SubscriberNotFoundError) {
-      return reply.status(404).send({ error: error.message });
+      const response: ApiResponse<never> = {
+        success: false,
+        error: error.message
+      };
+      return reply.status(404).send(response);
     }
     if (error instanceof InvalidPhoneNumberError) {
-      return reply.status(400).send({ error: error.message });
+      const response: ApiResponse<never> = {
+        success: false,
+        error: error.message
+      };
+      return reply.status(400).send(response);
     }
-    console.error('Error updating subscriber:', error);
-    return reply.status(500).send({ error: 'Internal server error' });
+    const response: ApiResponse<never> = {
+      success: false,
+      error: 'Internal server error'
+    };
+    return reply.status(500).send(response);
   }
 }; 

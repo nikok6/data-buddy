@@ -18,7 +18,7 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "generate-test-data": "node scripts/generateSampleData.js",
-    "test": "jest",
+    "test": "jest src/__tests__/unit/ && jest src/__tests__/integration/",
     "db:seed": "prisma db seed"
   },
   "devDependencies": {

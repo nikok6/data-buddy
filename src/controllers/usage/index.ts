@@ -7,6 +7,7 @@ import {
   InvalidPhoneNumberError,
   InvalidUsageError
 } from '../../services/usage';
+import { ApiResponse } from '../../types';
 
 interface GetUsageQuery {
   phoneNumber: string;
@@ -27,7 +28,11 @@ export const getUsageController = async (
   const { phoneNumber, startDate, endDate } = request.query;
 
   if (!phoneNumber) {
-    return reply.status(400).send({ error: 'Phone number is required' });
+    const response: ApiResponse<never> = {
+      success: false,
+      error: 'Phone number is required'
+    };
+    return reply.status(400).send(response);
   }
 
   try {
@@ -37,28 +42,55 @@ export const getUsageController = async (
       const end = new Date(endDate);
 
       if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-        return reply.status(400).send({ error: 'Invalid date format' });
+        const response: ApiResponse<never> = {
+          success: false,
+          error: 'Invalid date format'
+        };
+        return reply.status(400).send(response);
       }
 
       const usages = await getUsageByPhoneNumberAndDateRangeService(phoneNumber, start, end);
-      return reply.send(usages);
+      const response: ApiResponse<typeof usages> = {
+        success: true,
+        data: usages
+      };
+      return reply.send(response);
     }
 
     // Otherwise, get all usage for the phone number
     const usages = await getUsageByPhoneNumberService(phoneNumber);
-    return reply.send(usages);
+    const response: ApiResponse<typeof usages> = {
+      success: true,
+      data: usages
+    };
+    return reply.send(response);
   } catch (error) {
     if (error instanceof SubscriberNotFoundError) {
-      return reply.status(404).send({ error: error.message });
+      const response: ApiResponse<never> = {
+        success: false,
+        error: error.message
+      };
+      return reply.status(404).send(response);
     }
     if (error instanceof InvalidPhoneNumberError) {
-      return reply.status(400).send({ error: error.message });
+      const response: ApiResponse<never> = {
+        success: false,
+        error: error.message
+      };
+      return reply.status(400).send(response);
     }
     if (error instanceof InvalidUsageError) {
-      return reply.status(400).send({ error: error.message });
+      const response: ApiResponse<never> = {
+        success: false,
+        error: error.message
+      };
+      return reply.status(400).send(response);
     }
-    console.error('Error getting usage:', error);
-    return reply.status(500).send({ error: 'Internal server error' });
+    const response: ApiResponse<never> = {
+      success: false,
+      error: 'Internal server error'
+    };
+    return reply.status(500).send(response);
   }
 };
 
@@ -71,22 +103,45 @@ export const createUsageController = async (
   try {
     const parsedDate = new Date(date);
     if (isNaN(parsedDate.getTime())) {
-      return reply.status(400).send({ error: 'Invalid date format' });
+      const response: ApiResponse<never> = {
+        success: false,
+        error: 'Invalid date format'
+      };
+      return reply.status(400).send(response);
     }
 
     const usage = await createUsageService(phoneNumber, parsedDate, usageInMB);
-    return reply.status(201).send(usage);
+    const response: ApiResponse<typeof usage> = {
+      success: true,
+      data: usage
+    };
+    return reply.status(201).send(response);
   } catch (error) {
     if (error instanceof SubscriberNotFoundError) {
-      return reply.status(404).send({ error: error.message });
+      const response: ApiResponse<never> = {
+        success: false,
+        error: error.message
+      };
+      return reply.status(404).send(response);
     }
     if (error instanceof InvalidPhoneNumberError) {
-      return reply.status(400).send({ error: error.message });
+      const response: ApiResponse<never> = {
+        success: false,
+        error: error.message
+      };
+      return reply.status(400).send(response);
     }
     if (error instanceof InvalidUsageError) {
-      return reply.status(400).send({ error: error.message });
+      const response: ApiResponse<never> = {
+        success: false,
+        error: error.message
+      };
+      return reply.status(400).send(response);
     }
-    console.error('Error creating usage:', error);
-    return reply.status(500).send({ error: 'Internal server error' });
+    const response: ApiResponse<never> = {
+      success: false,
+      error: 'Internal server error'
+    };
+    return reply.status(500).send(response);
   }
 }; 
