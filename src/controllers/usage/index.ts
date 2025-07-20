@@ -22,10 +22,10 @@ interface CreateUsageBody {
 }
 
 export const getUsageController = async (
-  request: FastifyRequest<{ Querystring: GetUsageQuery }>,
+  request: FastifyRequest,
   reply: FastifyReply
 ) => {
-  const { phoneNumber, startDate, endDate } = request.query;
+  const { phoneNumber, startDate, endDate } = request.query as { phoneNumber?: string; startDate?: string; endDate?: string };
 
   if (!phoneNumber) {
     const response: ApiResponse<never> = {
@@ -95,10 +95,10 @@ export const getUsageController = async (
 };
 
 export const createUsageController = async (
-  request: FastifyRequest<{ Body: CreateUsageBody }>,
+  request: FastifyRequest,
   reply: FastifyReply
 ) => {
-  const { phoneNumber, date, usageInMB } = request.body;
+  const { phoneNumber, date, usageInMB } = request.body as { phoneNumber: string; date: string; usageInMB: number };
 
   try {
     const parsedDate = new Date(date);

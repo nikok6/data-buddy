@@ -28,11 +28,11 @@ export const getPlansController = async (
 };
 
 export const createPlanController = async (
-  request: FastifyRequest<{ Body: DataPlan }>,
+  request: FastifyRequest,
   reply: FastifyReply
 ) => {
   try {
-    const planData = request.body;
+    const planData = request.body as DataPlan;
     const newPlan = await createPlanService(planData);
     
     const response: ApiResponse<typeof newPlan> = {
@@ -52,15 +52,12 @@ export const createPlanController = async (
 };
 
 export const updatePlanController = async (
-  request: FastifyRequest<{ 
-    Params: { id: string };
-    Body: DataPlan;
-  }>,
+  request: FastifyRequest,
   reply: FastifyReply
 ) => {
   try {
-    const { id } = request.params;
-    const planData = request.body;
+    const { id } = request.params as { id: string };
+    const planData = request.body as DataPlan;
     
     const updatedPlan = await updatePlanService(parseInt(id, 10), planData);
     

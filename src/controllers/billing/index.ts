@@ -7,11 +7,11 @@ interface BillingReportParams {
 }
 
 export const getBillingReportController = async (
-  request: FastifyRequest<{ Params: BillingReportParams }>,
+  request: FastifyRequest,
   reply: FastifyReply
 ) => {
   try {
-    const { phoneNumber } = request.params;
+    const { phoneNumber } = request.params as { phoneNumber: string };
 
     // Validate phone number format
     if (!phoneNumber?.match(/^\d+$/)) {

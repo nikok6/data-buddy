@@ -7,13 +7,17 @@ import {
   cleanupTestData,
   disconnectDatabase,
   prisma,
-  seedDataPlans
+  seedDataPlans,
+  getAdminToken,
+  getRegularUserToken
 } from '../../utils/test/database';
 
 describe('Subscribers API Integration Tests', () => {
   let app: FastifyInstance;
   let testPlan: TestPlan;
   let testSubscriber: TestSubscriber;
+  let authHeader: string;
+  let userAuthHeader: string;
 
   beforeAll(async () => {
     app = buildApp();
@@ -32,6 +36,12 @@ describe('Subscribers API Integration Tests', () => {
 
     const result = await setupTestData(testPlan);
     testSubscriber = result.subscriber;
+
+    // Setup auth headers
+    const adminToken = await getAdminToken();
+    const userToken = await getRegularUserToken();
+    authHeader = `Bearer ${adminToken}`;
+    userAuthHeader = `Bearer ${userToken}`;
   });
 
   afterAll(async () => {
@@ -41,10 +51,42 @@ describe('Subscribers API Integration Tests', () => {
   });
 
   describe('GET /api/subscribers', () => {
-    it('should return all subscribers', async () => {
+    it('should return 401 when no authorization header is provided', async () => {
       const response = await app.inject({
         method: 'GET',
         url: '/api/subscribers'
+      });
+
+      expect(response.statusCode).toBe(401);
+      expect(JSON.parse(response.payload)).toMatchObject({
+        success: false,
+        error: 'Authorization header is required'
+      });
+    });
+
+    it('should return 403 for regular user access', async () => {
+      const response = await app.inject({
+        method: 'GET',
+        url: '/api/subscribers',
+        headers: {
+          authorization: userAuthHeader
+        }
+      });
+
+      expect(response.statusCode).toBe(403);
+      expect(JSON.parse(response.payload)).toMatchObject({
+        success: false,
+        error: expect.any(String)
+      });
+    });
+
+    it('should return all subscribers for admin', async () => {
+      const response = await app.inject({
+        method: 'GET',
+        url: '/api/subscribers',
+        headers: {
+          authorization: authHeader
+        }
       });
 
       expect(response.statusCode).toBe(200);
@@ -58,8 +100,7 @@ describe('Subscribers API Integration Tests', () => {
   });
 
   describe('GET /api/subscribers/:id', () => {
-    it('should return subscriber by ID', async () => {
-      // First get the subscriber ID from the database
+    it('should return 401 when no authorization header is provided', async () => {
       const subscriber = await prisma.subscriber.findUnique({
         where: { phoneNumber: testSubscriber.phoneNumber }
       });
@@ -67,6 +108,26 @@ describe('Subscribers API Integration Tests', () => {
       const response = await app.inject({
         method: 'GET',
         url: `/api/subscribers/${subscriber?.id}`
+      });
+
+      expect(response.statusCode).toBe(401);
+      expect(JSON.parse(response.payload)).toMatchObject({
+        success: false,
+        error: 'Authorization header is required'
+      });
+    });
+
+    it('should return subscriber by ID for admin', async () => {
+      const subscriber = await prisma.subscriber.findUnique({
+        where: { phoneNumber: testSubscriber.phoneNumber }
+      });
+
+      const response = await app.inject({
+        method: 'GET',
+        url: `/api/subscribers/${subscriber?.id}`,
+        headers: {
+          authorization: authHeader
+        }
       });
 
       expect(response.statusCode).toBe(200);
@@ -81,7 +142,10 @@ describe('Subscribers API Integration Tests', () => {
     it('should return 404 for non-existent subscriber ID', async () => {
       const response = await app.inject({
         method: 'GET',
-        url: '/api/subscribers/999999'
+        url: '/api/subscribers/999999',
+        headers: {
+          authorization: authHeader
+        }
       });
 
       expect(response.statusCode).toBe(404);
@@ -93,11 +157,28 @@ describe('Subscribers API Integration Tests', () => {
   });
 
   describe('GET /api/subscribers/phone', () => {
-    it('should return subscriber by phone number', async () => {
+    it('should return 401 when no authorization header is provided', async () => {
       const response = await app.inject({
         method: 'GET',
         url: '/api/subscribers/phone',
         query: { phoneNumber: testSubscriber.phoneNumber }
+      });
+
+      expect(response.statusCode).toBe(401);
+      expect(JSON.parse(response.payload)).toMatchObject({
+        success: false,
+        error: 'Authorization header is required'
+      });
+    });
+
+    it('should return subscriber by phone number for admin', async () => {
+      const response = await app.inject({
+        method: 'GET',
+        url: '/api/subscribers/phone',
+        query: { phoneNumber: testSubscriber.phoneNumber },
+        headers: {
+          authorization: authHeader
+        }
       });
 
       expect(response.statusCode).toBe(200);
@@ -113,7 +194,10 @@ describe('Subscribers API Integration Tests', () => {
       const response = await app.inject({
         method: 'GET',
         url: '/api/subscribers/phone',
-        query: { phoneNumber: '9999999999' }
+        query: { phoneNumber: '9999999999' },
+        headers: {
+          authorization: authHeader
+        }
       });
 
       expect(response.statusCode).toBe(404);
@@ -145,11 +229,28 @@ describe('Subscribers API Integration Tests', () => {
       });
     });
 
-    it('should create a new subscriber', async () => {
+    it('should return 401 when no authorization header is provided', async () => {
       const response = await app.inject({
         method: 'POST',
         url: '/api/subscribers',
         payload: newSubscriber
+      });
+
+      expect(response.statusCode).toBe(401);
+      expect(JSON.parse(response.payload)).toMatchObject({
+        success: false,
+        error: 'Authorization header is required'
+      });
+    });
+
+    it('should create a new subscriber for admin', async () => {
+      const response = await app.inject({
+        method: 'POST',
+        url: '/api/subscribers',
+        payload: newSubscriber,
+        headers: {
+          authorization: authHeader
+        }
       });
 
       expect(response.statusCode).toBe(201);
@@ -161,11 +262,14 @@ describe('Subscribers API Integration Tests', () => {
       });
     });
 
-    it('should return 400 for duplicate phone number', async () => {
+    it('should return 409 for duplicate phone number', async () => {
       const response = await app.inject({
         method: 'POST',
         url: '/api/subscribers',
-        payload: newSubscriber
+        payload: newSubscriber,
+        headers: {
+          authorization: authHeader
+        }
       });
 
       expect(response.statusCode).toBe(409);
@@ -182,6 +286,9 @@ describe('Subscribers API Integration Tests', () => {
         payload: {
           phoneNumber: '5555555555',
           planId: 999999
+        },
+        headers: {
+          authorization: authHeader
         }
       });
 
@@ -235,12 +342,31 @@ describe('Subscribers API Integration Tests', () => {
       });
     });
 
-    it('should update subscriber plan', async () => {
+    it('should return 401 when no authorization header is provided', async () => {
       const response = await app.inject({
         method: 'PUT',
         url: `/api/subscribers/${subscriberId}`,
         payload: {
           planId: updatedPlanId
+        }
+      });
+
+      expect(response.statusCode).toBe(401);
+      expect(JSON.parse(response.payload)).toMatchObject({
+        success: false,
+        error: 'Authorization header is required'
+      });
+    });
+
+    it('should update subscriber plan for admin', async () => {
+      const response = await app.inject({
+        method: 'PUT',
+        url: `/api/subscribers/${subscriberId}`,
+        payload: {
+          planId: updatedPlanId
+        },
+        headers: {
+          authorization: authHeader
         }
       });
 
@@ -259,6 +385,9 @@ describe('Subscribers API Integration Tests', () => {
         url: '/api/subscribers/999999',
         payload: {
           planId: updatedPlanId
+        },
+        headers: {
+          authorization: authHeader
         }
       });
 
@@ -275,6 +404,9 @@ describe('Subscribers API Integration Tests', () => {
         url: `/api/subscribers/${subscriberId}`,
         payload: {
           planId: 999999
+        },
+        headers: {
+          authorization: authHeader
         }
       });
 

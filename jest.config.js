@@ -4,5 +4,5 @@ module.exports = {
   testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
   setupFiles: ['<rootDir>/jest.setup.js'],
   maxWorkers: 1, // Force sequential execution
-  // silent: true // Disable console output during tests
+  silent: true // Disable console output during tests
 };

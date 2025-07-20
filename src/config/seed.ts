@@ -1,4 +1,4 @@
-import { DataPlan } from "../types";
+import { DataPlan, UserRole } from "../types";
 
 export const availableDataPlans: DataPlan[] = [
   {
@@ -56,3 +56,14 @@ export const availableDataPlans: DataPlan[] = [
     excessChargePerMB: 0.0015,
   },
 ];
+
+if (!process.env.ADMIN_PASSWORD_HASH) {
+  throw new Error('ADMIN_PASSWORD_HASH environment variable is required for seeding');
+}
+
+export const defaultAdmin = {
+  username: 'admin',
+  password: process.env.ADMIN_PASSWORD_HASH,
+  role: UserRole.ADMIN,
+  isActive: true
+};

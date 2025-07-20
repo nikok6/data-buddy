@@ -2,10 +2,20 @@ import { FastifyInstance } from 'fastify';
 import { buildApp } from '../../app';
 import { DataPlan } from '@prisma/client';
 import { availableDataPlans } from '../../config/seed';
-import { cleanupDatabase, seedDataPlans, disconnectDatabase, getAllPlans, getPlansForProvider } from '../../utils/test/database';
+import { 
+  cleanupDatabase, 
+  seedDataPlans, 
+  disconnectDatabase, 
+  getAllPlans, 
+  getPlansForProvider,
+  getAdminToken,
+  getRegularUserToken
+} from '../../utils/test/database';
 
 describe('Plans API Integration Tests', () => {
   let app: FastifyInstance;
+  let authHeader: string;
+  let userAuthHeader: string;
 
   // Setup and teardown
   beforeAll(async () => {
@@ -16,6 +26,11 @@ describe('Plans API Integration Tests', () => {
   beforeEach(async () => {
     await cleanupDatabase();
     await seedDataPlans(availableDataPlans);
+
+    const adminToken = await getAdminToken();
+    const userToken = await getRegularUserToken();
+    authHeader = `Bearer ${adminToken}`;
+    userAuthHeader = `Bearer ${userToken}`;
   });
 
   afterAll(async () => {
@@ -40,11 +55,45 @@ describe('Plans API Integration Tests', () => {
   };
 
   describe('GET /api/plans', () => {
-    describe('Basic Functionality', () => {
-      it('should return all available plans', async () => {
+    describe('Authorization', () => {
+      it('should return 401 when no authorization header is provided', async () => {
         const response = await app.inject({
           method: 'GET',
           url: '/api/plans'
+        });
+
+        expect(response.statusCode).toBe(401);
+        expect(JSON.parse(response.payload)).toMatchObject({
+          success: false,
+          error: 'Authorization header is required'
+        });
+      });
+
+      it('should return 403 for regular user access', async () => {
+        const response = await app.inject({
+          method: 'GET',
+          url: '/api/plans',
+          headers: {
+            authorization: userAuthHeader
+          }
+        });
+
+        expect(response.statusCode).toBe(403);
+        expect(JSON.parse(response.payload)).toMatchObject({
+          success: false,
+          error: expect.any(String)
+        });
+      });
+    });
+
+    describe('Basic Functionality', () => {
+      it('should return all available plans for admin', async () => {
+        const response = await app.inject({
+          method: 'GET',
+          url: '/api/plans',
+          headers: {
+            authorization: authHeader
+          }
         });
         const dbPlans = await getAllPlans();
 
@@ -63,11 +112,14 @@ describe('Plans API Integration Tests', () => {
     });
 
     describe('Provider Filtering', () => {
-      it('should filter plans by provider', async () => {
+      it('should filter plans by provider for admin', async () => {
         const provider = 'Starhub';
         const response = await app.inject({
           method: 'GET',
-          url: `/api/plans?provider=${provider}`
+          url: `/api/plans?provider=${provider}`,
+          headers: {
+            authorization: authHeader
+          }
         });
         const dbPlans = await getPlansForProvider(provider);
 
@@ -85,10 +137,13 @@ describe('Plans API Integration Tests', () => {
         });
       });
 
-      it('should return empty array for non-existent provider', async () => {
+      it('should return empty array for non-existent provider for admin', async () => {
         const response = await app.inject({
           method: 'GET',
-          url: '/api/plans?provider=InvalidProvider'
+          url: '/api/plans?provider=InvalidProvider',
+          headers: {
+            authorization: authHeader
+          }
         });
 
         expect(response.statusCode).toBe(200);
@@ -99,10 +154,13 @@ describe('Plans API Integration Tests', () => {
         });
       });
 
-      it('should be case insensitive for provider filter', async () => {
+      it('should be case insensitive for provider filter for admin', async () => {
         const response = await app.inject({
           method: 'GET',
-          url: '/api/plans?provider=starHUB'
+          url: '/api/plans?provider=starHUB',
+          headers: {
+            authorization: authHeader
+          }
         });
         const dbPlans = await getPlansForProvider('Starhub');
 

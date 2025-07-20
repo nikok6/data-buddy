@@ -47,11 +47,12 @@ export const getAllSubscribersController = async (_request: FastifyRequest, repl
 };
 
 export const getSubscriberByIdController = async (
-  request: FastifyRequest<{ Params: GetSubscriberParams }>,
+  request: FastifyRequest,
   reply: FastifyReply
 ) => {
-  const id = parseInt(request.params.id);
-  if (isNaN(id)) {
+  const { id } = request.params as { id: string };
+  const parsedId = parseInt(id);
+  if (isNaN(parsedId)) {
     const response: ApiResponse<never> = {
       success: false,
       error: 'Invalid ID format'
@@ -60,7 +61,7 @@ export const getSubscriberByIdController = async (
   }
 
   try {
-    const subscriber = await getSubscriberByIdService(id);
+    const subscriber = await getSubscriberByIdService(parsedId);
     const response: ApiResponse<typeof subscriber> = {
       success: true,
       data: subscriber
@@ -83,10 +84,10 @@ export const getSubscriberByIdController = async (
 };
 
 export const getSubscriberByPhoneController = async (
-  request: FastifyRequest<{ Querystring: GetSubscriberByPhoneQuery }>,
+  request: FastifyRequest,
   reply: FastifyReply
 ) => {
-  const { phoneNumber } = request.query;
+  const { phoneNumber } = request.query as { phoneNumber?: string };
   if (!phoneNumber) {
     const response: ApiResponse<never> = {
       success: false,
@@ -126,10 +127,10 @@ export const getSubscriberByPhoneController = async (
 };
 
 export const createSubscriberController = async (
-  request: FastifyRequest<{ Body: CreateSubscriberBody }>,
+  request: FastifyRequest,
   reply: FastifyReply
 ) => {
-  const { phoneNumber, planId } = request.body;
+  const { phoneNumber, planId } = request.body as { phoneNumber: string; planId: number };
 
   try {
     const subscriber = await createSubscriberService(phoneNumber, planId);
@@ -162,11 +163,12 @@ export const createSubscriberController = async (
 };
 
 export const updateSubscriberController = async (
-  request: FastifyRequest<{ Params: GetSubscriberParams; Body: UpdateSubscriberBody }>,
+  request: FastifyRequest,
   reply: FastifyReply
 ) => {
-  const id = parseInt(request.params.id);
-  if (isNaN(id)) {
+  const { id } = request.params as { id: string };
+  const parsedId = parseInt(id);
+  if (isNaN(parsedId)) {
     const response: ApiResponse<never> = {
       success: false,
       error: 'Invalid ID format'
@@ -175,7 +177,8 @@ export const updateSubscriberController = async (
   }
 
   try {
-    const updatedSubscriber = await updateSubscriberService(id, request.body);
+    const updateData = request.body as UpdateSubscriberBody;
+    const updatedSubscriber = await updateSubscriberService(parsedId, updateData);
     const response: ApiResponse<typeof updatedSubscriber> = {
       success: true,
       data: updatedSubscriber

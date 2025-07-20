@@ -1,6 +1,10 @@
 import { FastifyInstance } from 'fastify';
 import { getBillingReportController } from '../../controllers/billing';
+import { authMiddleware, adminMiddleware } from '../../middleware';
 
 export default async function (fastify: FastifyInstance) {
-  fastify.get('/api/billing/:phoneNumber', getBillingReportController);
+  // Billing endpoint requires admin authentication
+  fastify.get('/api/billing/:phoneNumber', {
+    preHandler: [authMiddleware, adminMiddleware]
+  }, getBillingReportController);
 }

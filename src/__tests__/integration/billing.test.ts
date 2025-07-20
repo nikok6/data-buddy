@@ -8,13 +8,16 @@ import {
   cleanupUsageData,
   createUsageRecord,
   getSubscriberWithPlan,
-  disconnectDatabase
+  disconnectDatabase,
+  getAdminToken,
+  getRegularUserToken
 } from '../../utils/test/database';
 
 describe('Billing API Integration Tests', () => {
   let app: FastifyInstance;
   let testPlan: TestPlan;
   let testSubscriber: TestSubscriber;
+  let authHeader: string;
 
   beforeAll(async () => {
     app = buildApp();
@@ -33,6 +36,10 @@ describe('Billing API Integration Tests', () => {
 
     const result = await setupTestData(testPlan);
     testSubscriber = result.subscriber;
+
+    // Get admin token
+    const token = await getAdminToken();
+    authHeader = `Bearer ${token}`;
   });
 
   afterAll(async () => {
@@ -46,10 +53,26 @@ describe('Billing API Integration Tests', () => {
   });
 
   describe('GET /api/billing/:phoneNumber', () => {
+    it('should return 401 when no authorization header is provided', async () => {
+      const response = await app.inject({
+        method: 'GET',
+        url: `/api/billing/${testSubscriber.phoneNumber}`
+      });
+
+      expect(response.statusCode).toBe(401);
+      expect(JSON.parse(response.payload)).toMatchObject({
+        success: false,
+        error: 'Authorization header is required'
+      });
+    });
+
     it('should return 400 for invalid phone number format', async () => {
       const response = await app.inject({
         method: 'GET',
-        url: '/api/billing/invalid-phone'
+        url: '/api/billing/invalid-phone',
+        headers: {
+          authorization: authHeader
+        }
       });
 
       expect(response.statusCode).toBe(400);
@@ -62,7 +85,10 @@ describe('Billing API Integration Tests', () => {
     it('should return 404 for non-existent subscriber', async () => {
       const response = await app.inject({
         method: 'GET',
-        url: '/api/billing/9999999999'
+        url: '/api/billing/9999999999',
+        headers: {
+          authorization: authHeader
+        }
       });
 
       expect(response.statusCode).toBe(404);
@@ -75,7 +101,10 @@ describe('Billing API Integration Tests', () => {
     it('should return billing report with no usage data', async () => {
       const response = await app.inject({
         method: 'GET',
-        url: `/api/billing/${testSubscriber.phoneNumber}`
+        url: `/api/billing/${testSubscriber.phoneNumber}`,
+        headers: {
+          authorization: authHeader
+        }
       });
 
       expect(response.statusCode).toBe(200);
@@ -105,7 +134,10 @@ describe('Billing API Integration Tests', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/api/billing/${testSubscriber.phoneNumber}`
+        url: `/api/billing/${testSubscriber.phoneNumber}`,
+        headers: {
+          authorization: authHeader
+        }
       });
 
       expect(response.statusCode).toBe(200);
@@ -134,7 +166,10 @@ describe('Billing API Integration Tests', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/api/billing/${testSubscriber.phoneNumber}`
+        url: `/api/billing/${testSubscriber.phoneNumber}`,
+        headers: {
+          authorization: authHeader
+        }
       });
 
       expect(response.statusCode).toBe(200);
@@ -174,7 +209,10 @@ describe('Billing API Integration Tests', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/api/billing/${testSubscriber.phoneNumber}`
+        url: `/api/billing/${testSubscriber.phoneNumber}`,
+        headers: {
+          authorization: authHeader
+        }
       });
 
       expect(response.statusCode).toBe(200);
@@ -193,6 +231,25 @@ describe('Billing API Integration Tests', () => {
           excessCost: 0,
           totalCost: testPlan.price
         }]
+      });
+    });
+
+    it('should return 403 for regular user trying to access billing data', async () => {
+      const userToken = await getRegularUserToken();
+      const userAuthHeader = `Bearer ${userToken}`;
+      
+      const response = await app.inject({
+        method: 'GET',
+        url: `/api/billing/${testSubscriber.phoneNumber}`,
+        headers: {
+          authorization: userAuthHeader
+        }
+      });
+
+      expect(response.statusCode).toBe(403);
+      expect(JSON.parse(response.payload)).toMatchObject({
+        success: false,
+        error: 'Admin access required'
       });
     });
   });

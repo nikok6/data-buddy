@@ -9,7 +9,11 @@
     "forceConsistentCasingInFileNames": true,
     "strictPropertyInitialization": false,
     "strict": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "types": ["node", "jest"],
+    "typeRoots": ["./node_modules/@types"],
+    "moduleResolution": "node"
   },
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "prisma"]
 }

@@ -6,11 +6,27 @@ import {
   createSubscriberController,
   updateSubscriberController
 } from '../../controllers/subscribers';
+import { authMiddleware, adminMiddleware } from '../../middleware';
 
 export default async function subscriberRoutes(fastify: FastifyInstance) {
-  fastify.get('/api/subscribers', getAllSubscribersController);
-  fastify.get('/api/subscribers/:id', getSubscriberByIdController);
-  fastify.get('/api/subscribers/phone', getSubscriberByPhoneController);
-  fastify.post('/api/subscribers', createSubscriberController);
-  fastify.put('/api/subscribers/:id', updateSubscriberController);
+  // All subscriber endpoints require admin authentication
+  fastify.get('/api/subscribers', {
+    preHandler: [authMiddleware, adminMiddleware]
+  }, getAllSubscribersController);
+  
+  fastify.get('/api/subscribers/:id', {
+    preHandler: [authMiddleware, adminMiddleware]
+  }, getSubscriberByIdController);
+  
+  fastify.get('/api/subscribers/phone', {
+    preHandler: [authMiddleware, adminMiddleware]
+  }, getSubscriberByPhoneController);
+  
+  fastify.post('/api/subscribers', {
+    preHandler: [authMiddleware, adminMiddleware]
+  }, createSubscriberController);
+  
+  fastify.put('/api/subscribers/:id', {
+    preHandler: [authMiddleware, adminMiddleware]
+  }, updateSubscriberController);
 } 

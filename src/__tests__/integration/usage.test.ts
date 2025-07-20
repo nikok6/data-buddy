@@ -9,7 +9,9 @@ import {
   createUsageRecord,
   getSubscriberWithUsages,
   disconnectDatabase,
-  prisma
+  prisma,
+  getAdminToken,
+  getRegularUserToken
 } from '../../utils/test/database';
 
 describe('Usage API Integration Tests', () => {
@@ -17,6 +19,8 @@ describe('Usage API Integration Tests', () => {
   let testPlan: TestPlan;
   let testSubscriber: TestSubscriber;
   let subscriberId: number;
+  let authHeader: string;
+  let userAuthHeader: string;
 
   beforeAll(async () => {
     app = buildApp();
@@ -41,6 +45,12 @@ describe('Usage API Integration Tests', () => {
       where: { phoneNumber: testSubscriber.phoneNumber }
     });
     subscriberId = subscriber!.id;
+
+    // Setup auth headers
+    const adminToken = await getAdminToken();
+    const userToken = await getRegularUserToken();
+    authHeader = `Bearer ${adminToken}`;
+    userAuthHeader = `Bearer ${userToken}`;
   });
 
   afterAll(async () => {
@@ -54,11 +64,45 @@ describe('Usage API Integration Tests', () => {
   });
 
   describe('GET /api/usage', () => {
-    it('should return empty usage data for subscriber with no usage', async () => {
+    it('should return 401 when no authorization header is provided', async () => {
       const response = await app.inject({
         method: 'GET',
         url: '/api/usage',
         query: { phoneNumber: testSubscriber.phoneNumber }
+      });
+
+      expect(response.statusCode).toBe(401);
+      expect(JSON.parse(response.payload)).toMatchObject({
+        success: false,
+        error: 'Authorization header is required'
+      });
+    });
+
+    it('should return 403 for regular user access', async () => {
+      const response = await app.inject({
+        method: 'GET',
+        url: '/api/usage',
+        query: { phoneNumber: testSubscriber.phoneNumber },
+        headers: {
+          authorization: userAuthHeader
+        }
+      });
+
+      expect(response.statusCode).toBe(403);
+      expect(JSON.parse(response.payload)).toMatchObject({
+        success: false,
+        error: expect.any(String)
+      });
+    });
+
+    it('should return empty usage data for subscriber with no usage', async () => {
+      const response = await app.inject({
+        method: 'GET',
+        url: '/api/usage',
+        query: { phoneNumber: testSubscriber.phoneNumber },
+        headers: {
+          authorization: authHeader
+        }
       });
 
       expect(response.statusCode).toBe(200);
@@ -84,7 +128,10 @@ describe('Usage API Integration Tests', () => {
       const response = await app.inject({
         method: 'GET',
         url: '/api/usage',
-        query: { phoneNumber: testSubscriber.phoneNumber }
+        query: { phoneNumber: testSubscriber.phoneNumber },
+        headers: {
+          authorization: authHeader
+        }
       });
 
       expect(response.statusCode).toBe(200);
@@ -100,7 +147,10 @@ describe('Usage API Integration Tests', () => {
       const response = await app.inject({
         method: 'GET',
         url: '/api/usage',
-        query: { phoneNumber: '9999999999' }
+        query: { phoneNumber: '9999999999' },
+        headers: {
+          authorization: authHeader
+        }
       });
 
       expect(response.statusCode).toBe(404);
@@ -114,7 +164,10 @@ describe('Usage API Integration Tests', () => {
       const response = await app.inject({
         method: 'GET',
         url: '/api/usage',
-        query: { phoneNumber: 'invalid-phone' }
+        query: { phoneNumber: 'invalid-phone' },
+        headers: {
+          authorization: authHeader
+        }
       });
 
       expect(response.statusCode).toBe(400);
@@ -126,7 +179,7 @@ describe('Usage API Integration Tests', () => {
   });
 
   describe('POST /api/usage', () => {
-    it('should create a new usage record', async () => {
+    it('should return 401 when no authorization header is provided', async () => {
       const usageData = {
         phoneNumber: testSubscriber.phoneNumber,
         date: new Date().toISOString(),
@@ -137,6 +190,52 @@ describe('Usage API Integration Tests', () => {
         method: 'POST',
         url: '/api/usage',
         payload: usageData
+      });
+
+      expect(response.statusCode).toBe(401);
+      expect(JSON.parse(response.payload)).toMatchObject({
+        success: false,
+        error: 'Authorization header is required'
+      });
+    });
+
+    it('should return 403 for regular user access', async () => {
+      const usageData = {
+        phoneNumber: testSubscriber.phoneNumber,
+        date: new Date().toISOString(),
+        usageInMB: 150
+      };
+
+      const response = await app.inject({
+        method: 'POST',
+        url: '/api/usage',
+        payload: usageData,
+        headers: {
+          authorization: userAuthHeader
+        }
+      });
+
+      expect(response.statusCode).toBe(403);
+      expect(JSON.parse(response.payload)).toMatchObject({
+        success: false,
+        error: expect.any(String)
+      });
+    });
+
+    it('should create a new usage record for admin', async () => {
+      const usageData = {
+        phoneNumber: testSubscriber.phoneNumber,
+        date: new Date().toISOString(),
+        usageInMB: 150
+      };
+
+      const response = await app.inject({
+        method: 'POST',
+        url: '/api/usage',
+        payload: usageData,
+        headers: {
+          authorization: authHeader
+        }
       });
 
       expect(response.statusCode).toBe(201);
@@ -158,7 +257,10 @@ describe('Usage API Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: '/api/usage',
-        payload: usageData
+        payload: usageData,
+        headers: {
+          authorization: authHeader
+        }
       });
 
       expect(response.statusCode).toBe(404);
@@ -178,7 +280,10 @@ describe('Usage API Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: '/api/usage',
-        payload: invalidUsageData
+        payload: invalidUsageData,
+        headers: {
+          authorization: authHeader
+        }
       });
 
       expect(response.statusCode).toBe(400);
@@ -198,7 +303,10 @@ describe('Usage API Integration Tests', () => {
       const response = await app.inject({
         method: 'POST',
         url: '/api/usage',
-        payload: invalidUsageData
+        payload: invalidUsageData,
+        headers: {
+          authorization: authHeader
+        }
       });
 
       expect(response.statusCode).toBe(400);
@@ -225,21 +333,30 @@ describe('Usage API Integration Tests', () => {
       await app.inject({
         method: 'POST',
         url: '/api/usage',
-        payload: usageData1
+        payload: usageData1,
+        headers: {
+          authorization: authHeader
+        }
       });
 
       // Create second usage record
       await app.inject({
         method: 'POST',
         url: '/api/usage',
-        payload: usageData2
+        payload: usageData2,
+        headers: {
+          authorization: authHeader
+        }
       });
 
       // Verify both records were created
       const response = await app.inject({
         method: 'GET',
         url: '/api/usage',
-        query: { phoneNumber: testSubscriber.phoneNumber }
+        query: { phoneNumber: testSubscriber.phoneNumber },
+        headers: {
+          authorization: authHeader
+        }
       });
 
       expect(response.statusCode).toBe(200);
