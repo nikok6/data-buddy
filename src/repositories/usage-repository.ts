@@ -5,7 +5,8 @@ const prisma = new PrismaClient();
 export class UsageRepository {
   async findByPhoneNumber(phoneNumber: string) {
     const subscriber = await prisma.subscriber.findUnique({
-      where: { phoneNumber }
+      where: { phoneNumber },
+      select: { id: true }
     });
 
     if (!subscriber) {
@@ -19,12 +20,9 @@ export class UsageRepository {
       orderBy: {
         date: 'asc'
       },
-      include: {
-        subscriber: {
-          include: {
-            plan: true
-          }
-        }
+      select: {
+        date: true,
+        usageInMB: true
       }
     });
   }
@@ -32,19 +30,17 @@ export class UsageRepository {
   async findById(id: number) {
     return prisma.usage.findUnique({
       where: { id },
-      include: {
-        subscriber: {
-          include: {
-            plan: true
-          }
-        }
+      select: {
+        date: true,
+        usageInMB: true
       }
     });
   }
 
   async create(phoneNumber: string, date: Date, usageInMB: number) {
     const subscriber = await prisma.subscriber.findUnique({
-      where: { phoneNumber }
+      where: { phoneNumber },
+      select: { id: true }
     });
 
     if (!subscriber) {
@@ -61,12 +57,9 @@ export class UsageRepository {
         date: normalizedDate,
         usageInMB
       },
-      include: {
-        subscriber: {
-          include: {
-            plan: true
-          }
-        }
+      select: {
+        date: true,
+        usageInMB: true
       }
     });
   }
@@ -77,19 +70,17 @@ export class UsageRepository {
       data: {
         usageInMB
       },
-      include: {
-        subscriber: {
-          include: {
-            plan: true
-          }
-        }
+      select: {
+        date: true,
+        usageInMB: true
       }
     });
   }
 
   async findUsageInDateRange(phoneNumber: string, startDate: Date, endDate: Date) {
     const subscriber = await prisma.subscriber.findUnique({
-      where: { phoneNumber }
+      where: { phoneNumber },
+      select: { id: true }
     });
 
     if (!subscriber) {
@@ -107,12 +98,9 @@ export class UsageRepository {
       orderBy: {
         date: 'asc'
       },
-      include: {
-        subscriber: {
-          include: {
-            plan: true
-          }
-        }
+      select: {
+        date: true,
+        usageInMB: true
       }
     });
   }

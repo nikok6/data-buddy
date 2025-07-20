@@ -2,8 +2,13 @@ import { BillingReport, BillingCycle } from '../../types';
 import { UsageRepository } from '../../repositories/usage-repository';
 import { SubscriberRepository } from '../../repositories/subscriber-repository';
 
-const usageRepository = new UsageRepository();
-const subscriberRepository = new SubscriberRepository();
+let usageRepository = new UsageRepository();
+let subscriberRepository = new SubscriberRepository();
+
+export const initializeRepository = (usageRepo: UsageRepository, subscriberRepo: SubscriberRepository) => {
+  usageRepository = usageRepo;
+  subscriberRepository = subscriberRepo;
+};
 
 const GB_TO_MB = 1024;
 

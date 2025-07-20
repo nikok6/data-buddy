@@ -3,7 +3,11 @@ import { parse } from 'csv-parse';
 import { Readable } from 'stream';
 import { ImportRepository } from '../../repositories/import-repository';
 
-const importRepository = new ImportRepository();
+let importRepository: ImportRepository = new ImportRepository();
+
+export const initializeRepository = (repo: ImportRepository) => {
+  importRepository = repo;
+};
 
 interface CsvRow {
   phone_number: string;

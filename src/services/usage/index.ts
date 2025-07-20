@@ -1,8 +1,15 @@
 import { UsageRepository } from '../../repositories/usage-repository';
 import { SubscriberRepository } from '../../repositories/subscriber-repository';
 
-const usageRepository = new UsageRepository();
-const subscriberRepository = new SubscriberRepository();
+// Initialize with default repository
+let subscriberRepository: SubscriberRepository = new SubscriberRepository();
+let usageRepository: UsageRepository = new UsageRepository();
+
+export const initializeRepository = (subscriberRepo: SubscriberRepository, usageRepo: UsageRepository) => {
+  subscriberRepository = subscriberRepo;
+  usageRepository = usageRepo;
+};
+
 
 export class SubscriberNotFoundError extends Error {
   constructor(phoneNumber: string) {

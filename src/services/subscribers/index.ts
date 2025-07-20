@@ -1,6 +1,11 @@
 import { SubscriberRepository } from '../../repositories/subscriber-repository';
 
-const subscriberRepository = new SubscriberRepository();
+// Initialize with default repository
+let subscriberRepository: SubscriberRepository = new SubscriberRepository();
+
+export const initializeRepository = (repo: SubscriberRepository) => {
+  subscriberRepository = repo;
+};
 
 export class SubscriberNotFoundError extends Error {
   constructor(identifier: string | number) {

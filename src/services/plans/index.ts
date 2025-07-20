@@ -1,7 +1,11 @@
 import { DataPlan } from '../../types';
 import { PlanRepository } from '../../repositories/plan-repository';
 
-const planRepository = new PlanRepository();
+let planRepository: PlanRepository = new PlanRepository();
+
+export const initializeRepository = (repo: PlanRepository) => {
+  planRepository = repo;
+};
 
 export const getPlansService = async (provider?: string) => {
   return planRepository.findAll(provider);
