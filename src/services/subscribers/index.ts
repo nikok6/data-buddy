@@ -34,8 +34,8 @@ export const getSubscriberByPhoneService = async (phoneNumber: string) => {
 };
 
 export const createSubscriberService = async (phoneNumber: string, planId: number) => {
-  // Validate phone number format
-  if (!phoneNumber?.match(/^\d+$/)) {
+  // Validate phone number format, 8 digits, and starts with 8 or 9
+  if (!phoneNumber?.match(/^[89]\d{7}$/)) {
     throw new InvalidPhoneNumberError(phoneNumber);
   }
 
@@ -53,7 +53,7 @@ export const createSubscriberService = async (phoneNumber: string, planId: numbe
 
 export const updateSubscriberService = async (id: number, updates: { phoneNumber?: string; planId?: number }) => {
   // Validate phone number format if provided
-  if (updates.phoneNumber && !updates.phoneNumber.match(/^\d+$/)) {
+  if (updates.phoneNumber && !updates.phoneNumber.match(/^[89]\d{7}$/)) {
     throw new InvalidPhoneNumberError(updates.phoneNumber);
   }
 

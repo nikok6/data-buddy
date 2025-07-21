@@ -25,8 +25,8 @@ describe('Subscriber Services', () => {
   describe('getAllSubscribersService', () => {
     it('should return all subscribers', async () => {
       const mockSubscribers = [
-        { id: 1, phoneNumber: '1234567890', planId: 1, createdAt: new Date(), updatedAt: new Date(), plan: { id: 1, planId: '1', provider: 'provider', name: 'name', dataFreeInGB: 100, billingCycleInDays: 30, price: 100, excessChargePerMB: 1, createdAt: new Date(), updatedAt: new Date() } },
-        { id: 2, phoneNumber: '0987654321', planId: 2, createdAt: new Date(), updatedAt: new Date(), plan: { id: 2, planId: '2', provider: 'provider', name: 'name', dataFreeInGB: 100, billingCycleInDays: 30, price: 100, excessChargePerMB: 1, createdAt: new Date(), updatedAt: new Date() } },
+        { id: 1, phoneNumber: '87654321', planId: 1, createdAt: new Date(), updatedAt: new Date(), plan: { id: 1, planId: '1', provider: 'provider', name: 'name', dataFreeInGB: 100, billingCycleInDays: 30, price: 100, excessChargePerMB: 1, createdAt: new Date(), updatedAt: new Date() } },
+        { id: 2, phoneNumber: '98765432', planId: 2, createdAt: new Date(), updatedAt: new Date(), plan: { id: 2, planId: '2', provider: 'provider', name: 'name', dataFreeInGB: 100, billingCycleInDays: 30, price: 100, excessChargePerMB: 1, createdAt: new Date(), updatedAt: new Date() } },
       ];
       mockRepository.findAll.mockResolvedValue(mockSubscribers);
 
@@ -38,7 +38,7 @@ describe('Subscriber Services', () => {
 
   describe('getSubscriberByIdService', () => {
     it('should return subscriber when found', async () => {
-      const mockSubscriber = { id: 1, phoneNumber: '1234567890', planId: 1, createdAt: new Date(), updatedAt: new Date(), plan: { id: 1, planId: '1', provider: 'provider', name: 'name', dataFreeInGB: 100, billingCycleInDays: 30, price: 100, excessChargePerMB: 1, createdAt: new Date(), updatedAt: new Date() } };
+      const mockSubscriber = { id: 1, phoneNumber: '87654321', planId: 1, createdAt: new Date(), updatedAt: new Date(), plan: { id: 1, planId: '1', provider: 'provider', name: 'name', dataFreeInGB: 100, billingCycleInDays: 30, price: 100, excessChargePerMB: 1, createdAt: new Date(), updatedAt: new Date() } };
       mockRepository.findById.mockResolvedValue(mockSubscriber);
 
       const result = await getSubscriberByIdService(1);
@@ -56,12 +56,12 @@ describe('Subscriber Services', () => {
 
   describe('getSubscriberByPhoneService', () => {
     it('should return subscriber when found', async () => {
-      const mockSubscriber = { id: 1, phoneNumber: '1234567890', planId: 1, createdAt: new Date(), updatedAt: new Date(), plan: { id: 1, planId: '1', provider: 'provider', name: 'name', dataFreeInGB: 100, billingCycleInDays: 30, price: 100, excessChargePerMB: 1, createdAt: new Date(), updatedAt: new Date() } };
+      const mockSubscriber = { id: 1, phoneNumber: '87654321', planId: 1, createdAt: new Date(), updatedAt: new Date(), plan: { id: 1, planId: '1', provider: 'provider', name: 'name', dataFreeInGB: 100, billingCycleInDays: 30, price: 100, excessChargePerMB: 1, createdAt: new Date(), updatedAt: new Date() } };
       mockRepository.findByPhoneNumber.mockResolvedValue(mockSubscriber);
 
-      const result = await getSubscriberByPhoneService('1234567890');
+      const result = await getSubscriberByPhoneService('87654321');
       expect(result).toEqual(mockSubscriber);
-      expect(mockRepository.findByPhoneNumber).toHaveBeenCalledWith('1234567890');
+      expect(mockRepository.findByPhoneNumber).toHaveBeenCalledWith('87654321');
     });
 
     it('should throw InvalidPhoneNumberError when phone number format is invalid', async () => {
@@ -72,22 +72,22 @@ describe('Subscriber Services', () => {
     it('should throw SubscriberNotFoundError when subscriber not found', async () => {
       mockRepository.findByPhoneNumber.mockResolvedValue(null);
 
-      await expect(getSubscriberByPhoneService('1234567890')).rejects.toThrow(SubscriberNotFoundError);
-      expect(mockRepository.findByPhoneNumber).toHaveBeenCalledWith('1234567890');
+      await expect(getSubscriberByPhoneService('87654321')).rejects.toThrow(SubscriberNotFoundError);
+      expect(mockRepository.findByPhoneNumber).toHaveBeenCalledWith('87654321');
     });
   });
 
   describe('createSubscriberService', () => {
     it('should create subscriber successfully', async () => {
-      const mockSubscriber = { id: 1, phoneNumber: '1234567890', planId: 1, createdAt: new Date(), updatedAt: new Date(), plan: { id: 1, planId: '1', provider: 'provider', name: 'name', dataFreeInGB: 100, billingCycleInDays: 30, price: 100, excessChargePerMB: 1, createdAt: new Date(), updatedAt: new Date() } };
+      const mockSubscriber = { id: 1, phoneNumber: '87654321', planId: 1, createdAt: new Date(), updatedAt: new Date(), plan: { id: 1, planId: '1', provider: 'provider', name: 'name', dataFreeInGB: 100, billingCycleInDays: 30, price: 100, excessChargePerMB: 1, createdAt: new Date(), updatedAt: new Date() } };
       mockRepository.exists.mockResolvedValue(false);
       mockRepository.create.mockResolvedValue(mockSubscriber);
 
-      const result = await createSubscriberService('1234567890', 1);
+      const result = await createSubscriberService('87654321', 1);
       expect(result).toEqual(mockSubscriber);
-      expect(mockRepository.exists).toHaveBeenCalledWith('1234567890');
+      expect(mockRepository.exists).toHaveBeenCalledWith('87654321');
       expect(mockRepository.create).toHaveBeenCalledWith({
-        phoneNumber: '1234567890',
+        phoneNumber: '87654321',
         planId: 1,
       });
     });
@@ -101,15 +101,15 @@ describe('Subscriber Services', () => {
     it('should throw SubscriberExistsError when subscriber already exists', async () => {
       mockRepository.exists.mockResolvedValue(true);
 
-      await expect(createSubscriberService('1234567890', 1)).rejects.toThrow(SubscriberExistsError);
-      expect(mockRepository.exists).toHaveBeenCalledWith('1234567890');
+      await expect(createSubscriberService('87654321', 1)).rejects.toThrow(SubscriberExistsError);
+      expect(mockRepository.exists).toHaveBeenCalledWith('87654321');
       expect(mockRepository.create).not.toHaveBeenCalled();
     });
   });
 
   describe('updateSubscriberService', () => {
     it('should update subscriber successfully', async () => {
-      const mockSubscriber = { id: 1, phoneNumber: '1234567890', planId: 2, createdAt: new Date(), updatedAt: new Date(), plan: { id: 2, planId: '2', provider: 'provider', name: 'name', dataFreeInGB: 100, billingCycleInDays: 30, price: 100, excessChargePerMB: 1, createdAt: new Date(), updatedAt: new Date() } };
+      const mockSubscriber = { id: 1, phoneNumber: '87654321', planId: 2, createdAt: new Date(), updatedAt: new Date(), plan: { id: 2, planId: '2', provider: 'provider', name: 'name', dataFreeInGB: 100, billingCycleInDays: 30, price: 100, excessChargePerMB: 1, createdAt: new Date(), updatedAt: new Date() } };
       mockRepository.update.mockResolvedValue(mockSubscriber);
 
       const result = await updateSubscriberService(1, { planId: 2 });

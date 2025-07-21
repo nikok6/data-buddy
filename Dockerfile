@@ -27,7 +27,7 @@ RUN sed -i 's|../src/config/seed|../dist/config/seed|g' prisma/seed.ts && \
 ENV PATH="/app/node_modules/.bin:${PATH}"
 
 # Test stage
-FROM builder as test
+FROM builder AS test
 WORKDIR /app
 # No additional setup needed as we inherit everything from builder
 

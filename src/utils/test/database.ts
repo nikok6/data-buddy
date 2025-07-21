@@ -148,7 +148,7 @@ export const setupTestData = async (plan: TestPlan): Promise<{ plan: any; subscr
   });
 
   const subscriber: TestSubscriber = {
-    phoneNumber: '1234567890',
+    phoneNumber: '87654321',
     planId: createdPlan.id
   };
 

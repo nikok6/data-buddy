@@ -210,7 +210,7 @@ describe('Subscribers API Integration Tests', () => {
 
   describe('POST /api/subscribers', () => {
     const newSubscriber = {
-      phoneNumber: '9876543210',
+      phoneNumber: '98765432',
       planId: 0 // Will be updated with actual plan ID
     };
 
@@ -284,7 +284,7 @@ describe('Subscribers API Integration Tests', () => {
         method: 'POST',
         url: '/api/subscribers',
         payload: {
-          phoneNumber: '5555555555',
+          phoneNumber: '87654322',
           planId: 999999
         },
         headers: {

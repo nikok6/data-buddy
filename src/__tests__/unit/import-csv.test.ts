@@ -73,7 +73,7 @@ describe('Import CSV Service', () => {
     it('should successfully import valid data', async () => {
       const csvContent = 
         'phone_number,plan_id,date,usage_in_mb\n' +
-        '1234567890,plan_1,1672531200000,100';
+        '87654321,plan_1,1672531200000,100';
       const file = createMockFile(csvContent);
 
       mockImportRepository.importUsageData.mockResolvedValue({
@@ -99,7 +99,7 @@ describe('Import CSV Service', () => {
       });
 
       expect(mockImportRepository.importUsageData).toHaveBeenCalledWith({
-        phoneNumber: '1234567890',
+        phoneNumber: '87654321',
         planId: 'plan_1',
         date: new Date(1672531200000),
         usageInMB: 100
@@ -109,7 +109,7 @@ describe('Import CSV Service', () => {
     it('should handle duplicate records', async () => {
       const csvContent = 
         'phone_number,plan_id,date,usage_in_mb\n' +
-        '1234567890,plan_1,1672531200000,100';
+        '87654321,plan_1,1672531200000,100';
       const file = createMockFile(csvContent);
 
       mockImportRepository.importUsageData.mockResolvedValue({
@@ -125,7 +125,7 @@ describe('Import CSV Service', () => {
     it('should handle invalid plan IDs', async () => {
       const csvContent = 
         'phone_number,plan_id,date,usage_in_mb\n' +
-        '1234567890,invalid_plan,1672531200000,100';
+        '87654321,invalid_plan,1672531200000,100';
       const file = createMockFile(csvContent);
 
       mockImportRepository.importUsageData.mockResolvedValue({
@@ -156,8 +156,8 @@ describe('Import CSV Service', () => {
     it('should handle invalid usage values', async () => {
       const csvContent = 
         'phone_number,plan_id,date,usage_in_mb\n' +
-        '1234567890,plan_1,1672531200000,-100\n' +
-        '1234567890,plan_1,1672531200000,invalid';
+        '87654321,plan_1,1672531200000,-100\n' +
+        '87654321,plan_1,1672531200000,invalid';
       const file = createMockFile(csvContent);
 
       const result = await importCsvService(file);
@@ -170,7 +170,7 @@ describe('Import CSV Service', () => {
     it('should handle invalid dates', async () => {
       const csvContent = 
         'phone_number,plan_id,date,usage_in_mb\n' +
-        '1234567890,plan_1,invalid_date,100';
+        '87654321,plan_1,invalid_date,100';
       const file = createMockFile(csvContent);
 
       const result = await importCsvService(file);
@@ -183,11 +183,11 @@ describe('Import CSV Service', () => {
     it('should process multiple rows with mixed validity', async () => {
       const csvContent = 
         'phone_number,plan_id,date,usage_in_mb\n' +
-        '1234567890,plan_1,1672531200000,100\n' +    // valid
+        '87654321,plan_1,1672531200000,100\n' +    // valid
         'abc123,plan_1,1672531200000,100\n' +        // invalid phone
-        '9876543210,plan_1,invalid_date,100\n' +     // invalid date
-        '5555555555,plan_1,1672531200000,-50\n' +    // invalid usage
-        '7777777777,plan_1,1672531200000,200';       // valid
+        '87654323,plan_1,invalid_date,100\n' +     // invalid date
+        '87654324,plan_1,1672531200000,-50\n' +    // invalid usage
+        '87654325,plan_1,1672531200000,200';       // valid
 
       const file = createMockFile(csvContent);
 

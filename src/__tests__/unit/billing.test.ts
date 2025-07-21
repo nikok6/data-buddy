@@ -14,7 +14,7 @@ describe('Billing Service', () => {
 
   const mockSubscriber = { 
     id: 10, 
-    phoneNumber: '12345678', 
+    phoneNumber: '87654321', 
     planId: 1, 
     createdAt: new Date(), 
     updatedAt: new Date(), 
@@ -63,7 +63,7 @@ describe('Billing Service', () => {
 
   describe('getBillingReportService', () => {
     it('should throw SubscriberNotFoundError when subscriber does not exist', async () => {
-      const phoneNumber = '12345678';
+      const phoneNumber = '87654321';
       mockSubscriberRepository.findByPhoneNumber.mockResolvedValue(null);
 
       await expect(getBillingReportService(phoneNumber))
@@ -72,7 +72,7 @@ describe('Billing Service', () => {
     });
 
     it('should throw SubscriberNotFoundError when usage records not found', async () => {
-      const phoneNumber = '12345678';
+      const phoneNumber = '87654321';
       mockSubscriberRepository.findByPhoneNumber.mockResolvedValue(mockSubscriber);
       mockUsageRepository.findUsageInDateRange.mockResolvedValue(null);
 
@@ -82,7 +82,7 @@ describe('Billing Service', () => {
     });
 
     it('should calculate billing report with no excess usage', async () => {
-      const phoneNumber = '12345678';
+      const phoneNumber = '87654321';
       const usageRecords = [
         { date: new Date('2024-01-15'), usageInMB: 5000 }, // 5GB
         { date: new Date('2024-01-20'), usageInMB: 10000 } // 10GB
@@ -136,7 +136,7 @@ describe('Billing Service', () => {
     });
 
     it('should handle multiple billing cycles', async () => {
-      const phoneNumber = '12345678';
+      const phoneNumber = '87654321';
       const usageRecords = [
         { date: new Date('2024-01-01'), usageInMB: 10000 },
         // First cycle
@@ -162,7 +162,7 @@ describe('Billing Service', () => {
     });
 
     it('should handle empty usage records', async () => {
-      const phoneNumber = '12345678';
+      const phoneNumber = '87654321';
       mockSubscriberRepository.findByPhoneNumber.mockResolvedValue(mockSubscriber);
       mockUsageRepository.findUsageInDateRange.mockResolvedValue([]);
 
@@ -182,7 +182,7 @@ describe('Billing Service', () => {
     });
 
     it('should correctly calculate dates for billing cycles', async () => {
-      const phoneNumber = '12345678';
+      const phoneNumber = '87654321';
       mockSubscriberRepository.findByPhoneNumber.mockResolvedValue(mockSubscriber);
       mockUsageRepository.findUsageInDateRange.mockResolvedValue([]);
 
