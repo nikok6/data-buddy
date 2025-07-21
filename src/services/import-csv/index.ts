@@ -2,34 +2,13 @@ import { MultipartFile } from '@fastify/multipart';
 import { parse } from 'csv-parse';
 import { Readable } from 'stream';
 import { ImportRepository } from '../../repositories/import-repository';
+import { ImportData, ImportResult } from '../../types';
 
 let importRepository: ImportRepository = new ImportRepository();
 
 export const initializeRepository = (repo: ImportRepository) => {
   importRepository = repo;
 };
-
-interface CsvRow {
-  phone_number: string;
-  plan_id: string;
-  date: string;
-  usage_in_mb: string;
-}
-
-interface ImportResult {
-  totalProcessed: number;
-  imported: number;
-  skipped: {
-    duplicates: number;
-    invalid: {
-      invalidPhoneNumber: number;
-      invalidPlanId: number;
-      invalidDate: number;
-      invalidUsage: number;
-    };
-  };
-  newSubscribers: number;
-}
 
 export const importCsvService = async (file: MultipartFile): Promise<ImportResult> => {
   const result: ImportResult = {
@@ -68,7 +47,7 @@ export const importCsvService = async (file: MultipartFile): Promise<ImportResul
 
   // Process the file stream
   const stream = Readable.from(buffer);
-  const rows: CsvRow[] = [];
+  const rows: ImportData[] = [];
   
   await new Promise((resolve, reject) => {
     stream
@@ -82,25 +61,25 @@ export const importCsvService = async (file: MultipartFile): Promise<ImportResul
     return result;
   }
 
-  const processRow = async (row: CsvRow) => {
+  const processRow = async (row: ImportData) => {
     result.totalProcessed++;
 
     // Validate phone number
-    if (!row.phone_number?.match(/^\d+$/)) {
+    if (!row.phoneNumber?.match(/^\d+$/)) {
       result.skipped.invalid.invalidPhoneNumber++;
       return;
     }
 
     // Validate usage
-    const usageInMB = parseInt(row.usage_in_mb);
+    const usageInMB = row.usageInMB;
     if (isNaN(usageInMB) || usageInMB < 0) {
       result.skipped.invalid.invalidUsage++;
       return;
     }
 
     // Validate date
-    const timestamp = parseInt(row.date);
-    if (isNaN(timestamp)) {
+    const timestamp = row.date;
+    if (isNaN(timestamp.getTime())) {
       result.skipped.invalid.invalidDate++;
       return;
     }
@@ -108,8 +87,8 @@ export const importCsvService = async (file: MultipartFile): Promise<ImportResul
 
     try {
       const importResult = await importRepository.importUsageData({
-        phoneNumber: row.phone_number,
-        planId: row.plan_id,
+        phoneNumber: row.phoneNumber,
+        planId: row.planId,
         date,
         usageInMB
       });

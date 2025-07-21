@@ -1,13 +1,7 @@
-import { PrismaClient, Prisma } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
+import { ImportData } from '../types';
 
 const prisma = new PrismaClient();
-
-export interface ImportData {
-  phoneNumber: string;
-  planId: string;
-  date: Date;
-  usageInMB: number;
-}
 
 export class ImportRepository {
   async importUsageData(data: ImportData) {

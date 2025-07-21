@@ -1,4 +1,4 @@
-import { BillingReport, BillingCycle } from '../../types';
+import { BillingReport, BillingCycle, SubscriberNotFoundError } from '../../types';
 import { UsageRepository } from '../../repositories/usage-repository';
 import { SubscriberRepository } from '../../repositories/subscriber-repository';
 
@@ -11,13 +11,6 @@ export const initializeRepository = (usageRepo: UsageRepository, subscriberRepo:
 };
 
 const GB_TO_MB = 1000;
-
-export class SubscriberNotFoundError extends Error {
-  constructor(phoneNumber: string) {
-    super(`Subscriber not found for phone number: ${phoneNumber}`);
-    this.name = 'SubscriberNotFoundError';
-  }
-}
 
 export const getBillingReportService = async (phoneNumber: string): Promise<BillingReport> => {
   // Find subscriber with their current plan

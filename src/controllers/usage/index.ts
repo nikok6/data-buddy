@@ -9,18 +9,6 @@ import {
 } from '../../services/usage';
 import { ApiResponse } from '../../types';
 
-interface GetUsageQuery {
-  phoneNumber: string;
-  startDate?: string;
-  endDate?: string;
-}
-
-interface CreateUsageBody {
-  phoneNumber: string;
-  date: string;
-  usageInMB: number;
-}
-
 export const getUsageController = async (
   request: FastifyRequest,
   reply: FastifyReply

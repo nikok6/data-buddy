@@ -3,14 +3,8 @@ import {
   loginService,
   registerService,
   getUserByIdService,
-  InvalidCredentialsError,
-  UserExistsError,
-  UserNotFoundError,
-  InactiveUserError,
-  InvalidOTPError,
-  AuthenticationError
 } from '../../services/auth';
-import { ApiResponse, LoginRequest, RegisterRequest } from '../../types';
+import { ApiResponse, LoginRequest, RegisterRequest, InvalidCredentialsError, UserExistsError, UserNotFoundError, InactiveUserError, InvalidOTPError, AuthenticationError } from '../../types';
 
 export const loginController = async (
   request: FastifyRequest<{ Body: LoginRequest }>,

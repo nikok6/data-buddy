@@ -4,30 +4,9 @@ import {
   getSubscriberByIdService,
   getSubscriberByPhoneService,
   createSubscriberService,
-  updateSubscriberService,
-  SubscriberNotFoundError,
-  InvalidPhoneNumberError,
-  SubscriberExistsError
+  updateSubscriberService
 } from '../../services/subscribers';
-import { ApiResponse } from '../../types';
-
-interface CreateSubscriberBody {
-  phoneNumber: string;
-  planId: number;
-}
-
-interface UpdateSubscriberBody {
-  phoneNumber?: string;
-  planId?: number;
-}
-
-interface GetSubscriberParams {
-  id: string;
-}
-
-interface GetSubscriberByPhoneQuery {
-  phoneNumber: string;
-}
+import { ApiResponse, UpdateSubscriberBody, SubscriberNotFoundError, InvalidPhoneNumberError, SubscriberExistsError } from '../../types';
 
 export const getAllSubscribersController = async (_request: FastifyRequest, reply: FastifyReply) => {
   try {

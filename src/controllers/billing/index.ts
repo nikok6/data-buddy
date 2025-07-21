@@ -1,10 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { getBillingReportService, SubscriberNotFoundError } from '../../services/billing';
-import { ApiResponse } from '../../types';
-
-interface BillingReportParams {
-  phoneNumber: string;
-}
+import { getBillingReportService } from '../../services/billing';
+import { ApiResponse, SubscriberNotFoundError } from '../../types';
 
 export const getBillingReportController = async (
   request: FastifyRequest,

@@ -1,12 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { importCsvService } from '../../services/import-csv';
-import { MultipartFile } from '@fastify/multipart';
-import { ApiResponse } from '../../types';
-
-interface FastifyMultipartError {
-  code: string;
-  message: string;
-}
+import { ApiResponse, FastifyMultipartError } from '../../types';
 
 export const importCsvController = async (
   request: FastifyRequest,

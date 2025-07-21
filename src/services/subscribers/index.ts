@@ -1,4 +1,5 @@
 import { SubscriberRepository } from '../../repositories/subscriber-repository';
+import { SubscriberNotFoundError, InvalidPhoneNumberError, SubscriberExistsError } from '../../types';
 
 // Initialize with default repository
 let subscriberRepository: SubscriberRepository = new SubscriberRepository();
@@ -7,27 +8,6 @@ export const initializeRepository = (repo: SubscriberRepository) => {
   subscriberRepository = repo;
 };
 
-export class SubscriberNotFoundError extends Error {
-  constructor(identifier: string | number) {
-    super(`Subscriber not found: ${identifier}`);
-    this.name = 'SubscriberNotFoundError';
-  }
-}
-
-export class InvalidPhoneNumberError extends Error {
-  constructor(phoneNumber: string) {
-    super(`Invalid phone number format: ${phoneNumber}`);
-    this.name = 'InvalidPhoneNumberError';
-  }
-}
-
-export class SubscriberExistsError extends Error {
-  constructor(phoneNumber: string) {
-    super(`Subscriber already exists with phone number: ${phoneNumber}`);
-    this.name = 'SubscriberExistsError';
-  }
-}
-
 export const getAllSubscribersService = async () => {
   return subscriberRepository.findAll();
 };
@@ -35,7 +15,7 @@ export const getAllSubscribersService = async () => {
 export const getSubscriberByIdService = async (id: number) => {
   const subscriber = await subscriberRepository.findById(id);
   if (!subscriber) {
-    throw new SubscriberNotFoundError(id);
+    throw new SubscriberNotFoundError(id.toString());
   }
   return subscriber;
 };
@@ -81,7 +61,7 @@ export const updateSubscriberService = async (id: number, updates: { phoneNumber
     return await subscriberRepository.update(id, updates);
   } catch (error) {
     if (error instanceof Error && error.message.includes('Record to update not found')) {
-      throw new SubscriberNotFoundError(id);
+      throw new SubscriberNotFoundError(id.toString());
     }
     throw error;
   }

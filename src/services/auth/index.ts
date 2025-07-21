@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { AuthRepository } from '../../repositories/auth-repository';
-import { UserRole, JWTPayload, AuthenticatedUser } from '../../types';
+import { UserRole, JWTPayload, AuthenticatedUser, AuthenticationError, InvalidCredentialsError, UserNotFoundError, InactiveUserError, InvalidOTPError, InvalidTokenError, UserExistsError } from '../../types';
 
 // Initialize with default repository
 let authRepository: AuthRepository = new AuthRepository();
@@ -9,56 +9,6 @@ let authRepository: AuthRepository = new AuthRepository();
 export const initializeRepository = (repo: AuthRepository) => {
   authRepository = repo;
 };
-
-// Custom Error Classes
-export class AuthenticationError extends Error {
-  constructor(message: string = 'Authentication failed') {
-    super(message);
-    this.name = 'AuthenticationError';
-  }
-}
-
-export class InvalidCredentialsError extends Error {
-  constructor() {
-    super('Invalid username or password');
-    this.name = 'InvalidCredentialsError';
-  }
-}
-
-export class UserNotFoundError extends Error {
-  constructor(identifier: string | number) {
-    super(`User not found: ${identifier}`);
-    this.name = 'UserNotFoundError';
-  }
-}
-
-export class UserExistsError extends Error {
-  constructor(username: string) {
-    super(`User already exists with username: ${username}`);
-    this.name = 'UserExistsError';
-  }
-}
-
-export class InvalidTokenError extends Error {
-  constructor(message: string = 'Invalid token') {
-    super(message);
-    this.name = 'InvalidTokenError';
-  }
-}
-
-export class InvalidOTPError extends Error {
-  constructor() {
-    super('Invalid OTP provided');
-    this.name = 'InvalidOTPError';
-  }
-}
-
-export class InactiveUserError extends Error {
-  constructor(username: string) {
-    super(`User account is inactive: ${username}`);
-    this.name = 'InactiveUserError';
-  }
-}
 
 // Utility Functions
 export const hashPassword = async (password: string): Promise<string> => {
