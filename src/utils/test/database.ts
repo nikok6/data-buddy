@@ -39,7 +39,7 @@ export const getRegularUserToken = async (): Promise<string> => {
     update: {},
     create: {
       username: 'testuser',
-      password: process.env.ADMIN_PASSWORD_HASH!, // Using same hash mechanism for simplicity
+      password: bcrypt.hashSync('admin', 12), // Using same hash mechanism for simplicity
       role: UserRole.USER,
       isActive: true
     }

@@ -12,4 +12,39 @@ services:
       - DATABASE_URL=file:/app/data/dev.db
     volumes:
       - ./data:/app/data
-    restart: unless-stopped 
+    restart: unless-stopped
+
+  unit-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test
+    environment:
+      - NODE_ENV=test
+      - DATABASE_URL=file:/app/data/test.db
+    volumes:
+      - ./data:/app/data
+      - ./src:/app/src
+      - ./jest.config.js:/app/jest.config.js
+      - ./jest.setup.js:/app/jest.setup.js
+      - ./tsconfig.json:/app/tsconfig.json
+    command: yarn test:unit
+
+  integration-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test
+    environment:
+      - NODE_ENV=test
+      - DATABASE_URL=file:/app/data/test.db
+    volumes:
+      - ./data:/app/data
+      - ./src:/app/src
+      - ./jest.config.js:/app/jest.config.js
+      - ./jest.setup.js:/app/jest.setup.js
+      - ./tsconfig.json:/app/tsconfig.json
+    command: >
+      sh -c "npx prisma migrate deploy &&
+             npx prisma db seed &&
+             yarn test:integration" 

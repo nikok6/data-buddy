@@ -99,7 +99,7 @@ describe('Billing Service', () => {
       expect(result.billingCycles[0]).toMatchObject({
         basePrice: 29.99,
         totalUsageInMB: 15000, // 15GB
-        includedDataInMB: 20480, // 20GB in MB
+        includedDataInMB: 20000, // 20GB in MB
         excessDataInMB: 0,
         excessCost: 0,
         totalCost: 29.99
@@ -118,7 +118,7 @@ describe('Billing Service', () => {
 
       const result = await getBillingReportService(phoneNumber);
 
-      const excessMB = 25000 - (20 * 1024); // Total usage - included data in MB
+      const excessMB = 25000 - (20 * 1000); // Total usage - included data in MB
       const expectedExcessCost = excessMB * 0.1;
       const expectedTotalCost = 29.99 + expectedExcessCost;
 
@@ -128,7 +128,7 @@ describe('Billing Service', () => {
       expect(result.billingCycles[0]).toMatchObject({
         basePrice: 29.99,
         totalUsageInMB: 25000,
-        includedDataInMB: 20480,
+        includedDataInMB: 20000,
         excessDataInMB: excessMB,
         excessCost: expectedExcessCost,
         totalCost: expectedTotalCost
@@ -154,7 +154,7 @@ describe('Billing Service', () => {
       expect(result.billingCycles[0]).toMatchObject({
         basePrice: 29.99,
         totalUsageInMB: 14000, // First cycle usage
-        includedDataInMB: 20480,
+        includedDataInMB: 20000,
         excessDataInMB: 0,
         excessCost: 0,
         totalCost: 29.99
@@ -174,7 +174,7 @@ describe('Billing Service', () => {
       expect(result.billingCycles[0]).toMatchObject({
         basePrice: 29.99,
         totalUsageInMB: 0,
-        includedDataInMB: 20480,
+        includedDataInMB: 20000,
         excessDataInMB: 0,
         excessCost: 0,
         totalCost: 29.99

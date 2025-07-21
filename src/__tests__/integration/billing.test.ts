@@ -117,7 +117,7 @@ describe('Billing API Integration Tests', () => {
           billingCycles: [{
             basePrice: testPlan.price,
             totalUsageInMB: 0,
-            includedDataInMB: testPlan.dataFreeInGB * 1024,
+            includedDataInMB: testPlan.dataFreeInGB * 1000,
             excessDataInMB: 0,
             excessCost: 0,
             totalCost: testPlan.price
@@ -128,7 +128,7 @@ describe('Billing API Integration Tests', () => {
 
     it('should return billing report with usage under the free limit', async () => {
       const subscriber = await getSubscriberWithPlan(testSubscriber.phoneNumber);
-      const usageInMB = testPlan.dataFreeInGB * 1024 - 100; // Just under the limit
+      const usageInMB = testPlan.dataFreeInGB * 1000 - 100; // Just under the limit
 
       await createUsageRecord(subscriber!.id, new Date(), usageInMB);
 
@@ -149,7 +149,7 @@ describe('Billing API Integration Tests', () => {
         billingCycles: [{
           basePrice: testPlan.price,
           totalUsageInMB: usageInMB,
-          includedDataInMB: testPlan.dataFreeInGB * 1024,
+          includedDataInMB: testPlan.dataFreeInGB * 1000,
           excessDataInMB: 0,
           excessCost: 0,
           totalCost: testPlan.price
@@ -160,7 +160,7 @@ describe('Billing API Integration Tests', () => {
     it('should return billing report with excess usage', async () => {
       const subscriber = await getSubscriberWithPlan(testSubscriber.phoneNumber);
       const excessMB = 100;
-      const usageInMB = testPlan.dataFreeInGB * 1024 + excessMB;
+      const usageInMB = testPlan.dataFreeInGB * 1000 + excessMB;
 
       await createUsageRecord(subscriber!.id, new Date(), usageInMB);
 
@@ -184,7 +184,7 @@ describe('Billing API Integration Tests', () => {
         billingCycles: [{
           basePrice: testPlan.price,
           totalUsageInMB: usageInMB,
-          includedDataInMB: testPlan.dataFreeInGB * 1024,
+          includedDataInMB: testPlan.dataFreeInGB * 1000,
           excessDataInMB: excessMB,
           excessCost: expectedExcessCost,
           totalCost: expectedTotalCost
@@ -226,7 +226,7 @@ describe('Billing API Integration Tests', () => {
         billingCycles: [{
           basePrice: testPlan.price,
           totalUsageInMB: totalUsage,
-          includedDataInMB: testPlan.dataFreeInGB * 1024,
+          includedDataInMB: testPlan.dataFreeInGB * 1000,
           excessDataInMB: 0,
           excessCost: 0,
           totalCost: testPlan.price

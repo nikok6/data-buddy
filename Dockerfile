@@ -7,10 +7,10 @@ WORKDIR /app
 COPY package*.json ./
 COPY yarn.lock ./
 
-# Install dependencies
+# Install ALL dependencies including devDependencies
 RUN yarn install --frozen-lockfile
 
-# Copy source code and env file
+# Copy source code and configuration files
 COPY . .
 
 # Generate Prisma client
@@ -22,6 +22,14 @@ RUN yarn build
 # Compile seed file with adjusted import path
 RUN sed -i 's|../src/config/seed|../dist/config/seed|g' prisma/seed.ts && \
     npx tsc prisma/seed.ts --outDir prisma --target ES2015 --module commonjs --esModuleInterop
+
+# Add node_modules/.bin to PATH to ensure Jest and other tools are available
+ENV PATH="/app/node_modules/.bin:${PATH}"
+
+# Test stage
+FROM builder as test
+WORKDIR /app
+# No additional setup needed as we inherit everything from builder
 
 # Production stage
 FROM node:24-alpine
