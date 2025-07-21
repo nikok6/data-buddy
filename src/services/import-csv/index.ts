@@ -65,7 +65,7 @@ export const importCsvService = async (file: MultipartFile): Promise<ImportResul
     result.totalProcessed++;
 
     // Validate phone number
-    if (!row.phoneNumber?.match(/^\d+$/)) {
+    if (!row.phoneNumber?.toString().match(/^\d+$/)) {
       result.skipped.invalid.invalidPhoneNumber++;
       return;
     }

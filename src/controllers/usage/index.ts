@@ -2,12 +2,9 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import {
   getUsageByPhoneNumberService,
   getUsageByPhoneNumberAndDateRangeService,
-  createUsageService,
-  SubscriberNotFoundError,
-  InvalidPhoneNumberError,
-  InvalidUsageError
+  createUsageService
 } from '../../services/usage';
-import { ApiResponse } from '../../types';
+import { ApiResponse, SubscriberNotFoundError, InvalidPhoneNumberError, InvalidUsageError } from '../../types';
 
 export const getUsageController = async (
   request: FastifyRequest,

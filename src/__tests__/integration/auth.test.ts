@@ -1,12 +1,9 @@
 import { FastifyInstance } from 'fastify';
 import { buildApp } from '../../app';
 import {
-  setupTestData,
-  cleanupTestData,
   disconnectDatabase,
   prisma,
-  getAdminToken,
-  getRegularUserToken
+  getAdminToken
 } from '../../utils/test/database';
 import { UserRole } from '../../types';
 import bcrypt from 'bcryptjs';
@@ -19,9 +16,7 @@ describe('Auth API Integration Tests', () => {
   beforeAll(async () => {
     app = buildApp();
     await app.ready();
-
-
-
+    
     // Initialize test user data
     testUser = {
       username: 'admin',

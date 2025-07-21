@@ -8,15 +8,16 @@ import {
   comparePassword,
   generateJWT,
   verifyJWT,
+  initializeRepository
+} from '../../services/auth';
+import {  
   AuthenticationError,
   InvalidCredentialsError,
   UserNotFoundError,
   UserExistsError,
   InvalidTokenError,
   InvalidOTPError,
-  InactiveUserError,
-  initializeRepository,
-} from '../../services/auth';
+  InactiveUserError } from '../../types/auth';
 import { UserRole } from '../../types';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';

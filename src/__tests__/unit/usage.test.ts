@@ -4,11 +4,9 @@ import {
   getUsageByPhoneNumberService,
   getUsageByPhoneNumberAndDateRangeService,
   createUsageService,
-  SubscriberNotFoundError,
-  InvalidPhoneNumberError,
-  InvalidUsageError,
   initializeRepository,
 } from '../../services/usage';
+import { SubscriberNotFoundError, InvalidPhoneNumberError, InvalidUsageError } from '../../types';
 
 // Mock repositories
 jest.mock('../../repositories/usage-repository');

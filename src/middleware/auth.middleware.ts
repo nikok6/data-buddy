@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { validateTokenService, InvalidTokenError, UserNotFoundError, InactiveUserError } from '../services/auth';
-import { ApiResponse } from '../types';
+import { validateTokenService } from '../services/auth';
+import { ApiResponse, InvalidTokenError, UserNotFoundError, InactiveUserError } from '../types';
 
 export const authMiddleware = async (request: FastifyRequest, reply: FastifyReply) => {
   try {

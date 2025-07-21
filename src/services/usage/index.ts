@@ -1,5 +1,6 @@
 import { UsageRepository } from '../../repositories/usage-repository';
 import { SubscriberRepository } from '../../repositories/subscriber-repository';
+import { SubscriberNotFoundError, InvalidPhoneNumberError, InvalidUsageError } from '../../types';
 
 // Initialize with default repository
 let subscriberRepository: SubscriberRepository = new SubscriberRepository();
@@ -9,28 +10,6 @@ export const initializeRepository = (subscriberRepo: SubscriberRepository, usage
   subscriberRepository = subscriberRepo;
   usageRepository = usageRepo;
 };
-
-
-export class SubscriberNotFoundError extends Error {
-  constructor(phoneNumber: string) {
-    super(`Subscriber not found with phone number: ${phoneNumber}`);
-    this.name = 'SubscriberNotFoundError';
-  }
-}
-
-export class InvalidPhoneNumberError extends Error {
-  constructor(phoneNumber: string) {
-    super(`Invalid phone number format: ${phoneNumber}`);
-    this.name = 'InvalidPhoneNumberError';
-  }
-}
-
-export class InvalidUsageError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'InvalidUsageError';
-  }
-}
 
 export const getUsageByPhoneNumberService = async (phoneNumber: string) => {
   // Validate phone number format

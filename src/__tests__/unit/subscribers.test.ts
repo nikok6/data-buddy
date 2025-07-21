@@ -5,11 +5,9 @@ import {
   getSubscriberByPhoneService,
   createSubscriberService,
   updateSubscriberService,
-  SubscriberNotFoundError,
-  InvalidPhoneNumberError,
-  SubscriberExistsError,
   initializeRepository
 } from '../../services/subscribers';
+import { SubscriberNotFoundError, InvalidPhoneNumberError, SubscriberExistsError } from '../../types';
 
 // Mock the repository
 jest.mock('../../repositories/subscriber-repository');

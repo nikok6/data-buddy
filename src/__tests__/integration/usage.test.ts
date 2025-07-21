@@ -7,7 +7,6 @@ import {
   cleanupTestData,
   cleanupUsageData,
   createUsageRecord,
-  getSubscriberWithUsages,
   disconnectDatabase,
   prisma,
   getAdminToken,
