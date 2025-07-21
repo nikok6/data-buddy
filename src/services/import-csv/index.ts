@@ -47,51 +47,58 @@ export const importCsvService = async (file: MultipartFile): Promise<ImportResul
 
   // Process the file stream
   const stream = Readable.from(buffer);
-  const rows: ImportData[] = [];
+  const rawRows: any[] = [];
   
   await new Promise((resolve, reject) => {
     stream
       .pipe(parser)
-      .on('data', (row) => rows.push(row))
+      .on('data', (row) => rawRows.push(row))
       .on('end', resolve)
       .on('error', reject);
   });
 
-  if (rows.length === 0) {
+  if (rawRows.length === 0) {
     return result;
   }
 
-  const processRow = async (row: ImportData) => {
+  const processRow = async (rawRow: any) => {
     result.totalProcessed++;
 
     // Validate phone number
-    if (!row.phoneNumber?.toString().match(/^\d+$/)) {
+    const phoneNumber = rawRow.phone_number?.toString();
+    if (!phoneNumber || !phoneNumber.match(/^\d+$/)) {
       result.skipped.invalid.invalidPhoneNumber++;
       return;
     }
 
     // Validate usage
-    const usageInMB = row.usageInMB;
+    const usageInMB = parseFloat(rawRow.usage_in_mb);
     if (isNaN(usageInMB) || usageInMB < 0) {
       result.skipped.invalid.invalidUsage++;
       return;
     }
 
     // Validate date
-    const timestamp = row.date;
-    if (isNaN(timestamp.getTime())) {
+    const dateValue = parseInt(rawRow.date);
+    if (isNaN(dateValue)) {
       result.skipped.invalid.invalidDate++;
       return;
     }
-    const date = new Date(timestamp);
+    const date = new Date(dateValue);
+    if (isNaN(date.getTime())) {
+      result.skipped.invalid.invalidDate++;
+      return;
+    }
+
+    const importData: ImportData = {
+      phoneNumber,
+      planId: rawRow.plan_id,
+      date,
+      usageInMB
+    };
 
     try {
-      const importResult = await importRepository.importUsageData({
-        phoneNumber: row.phoneNumber,
-        planId: row.planId,
-        date,
-        usageInMB
-      });
+      const importResult = await importRepository.importUsageData(importData);
 
       switch (importResult.status) {
         case 'success':
@@ -114,7 +121,7 @@ export const importCsvService = async (file: MultipartFile): Promise<ImportResul
   };
 
   // Process rows sequentially
-  for (const row of rows) {
+  for (const row of rawRows) {
     await processRow(row);
   }
 
