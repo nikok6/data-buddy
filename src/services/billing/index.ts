@@ -10,7 +10,7 @@ export const initializeRepository = (usageRepo: UsageRepository, subscriberRepo:
   subscriberRepository = subscriberRepo;
 };
 
-const GB_TO_MB = 1024;
+const GB_TO_MB = 1000;
 
 export class SubscriberNotFoundError extends Error {
   constructor(phoneNumber: string) {

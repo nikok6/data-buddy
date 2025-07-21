@@ -1,4 +1,5 @@
 import { DataPlan, UserRole } from "../types";
+import bcrypt from 'bcryptjs';
 
 export const availableDataPlans: DataPlan[] = [
   {
@@ -57,13 +58,12 @@ export const availableDataPlans: DataPlan[] = [
   },
 ];
 
-if (!process.env.ADMIN_PASSWORD_HASH) {
-  throw new Error('ADMIN_PASSWORD_HASH environment variable is required for seeding');
-}
+// Hash the admin password synchronously with 12 rounds
+const adminPasswordHash = bcrypt.hashSync('admin', 12);
 
 export const defaultAdmin = {
   username: 'admin',
-  password: process.env.ADMIN_PASSWORD_HASH,
+  password: adminPasswordHash,
   role: UserRole.ADMIN,
   isActive: true
 };

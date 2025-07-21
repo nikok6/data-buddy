@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { hashPassword } from '../../services/auth';
 import { UserRole } from '../../types';
 import { loginService } from '../../services/auth';
+import bcrypt from 'bcryptjs';
 
 // Create a singleton instance for tests
 const prisma = new PrismaClient();
@@ -16,7 +17,7 @@ export const getAdminToken = async (): Promise<string> => {
     update: {},
     create: {
       username: 'admin',
-      password: process.env.ADMIN_PASSWORD_HASH!,
+      password: bcrypt.hashSync('admin', 12),
       role: UserRole.ADMIN,
       isActive: true
     }
@@ -122,7 +123,7 @@ export const createTestAdmin = async () => {
     await prisma.user.create({
       data: {
       username: 'admin',
-      password: hashedPassword,
+      password: bcrypt.hashSync('admin', 12),
       role: UserRole.ADMIN,
       isActive: true
       }

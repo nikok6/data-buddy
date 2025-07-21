@@ -9,10 +9,13 @@ const server = buildApp({
   },
 });
 
-server.listen({ port: 3000 }, (err, _address) => {
+server.listen({ 
+  port: 3000,
+  host: '0.0.0.0' // Allow connections from outside the container
+}, (err, address) => {
   if (err) {
     server.log.error(err);
     process.exit(1);
   }
-  console.log("Server is running at http://localhost:3000");
+  console.log(`Server is running at ${address}`);
 });
