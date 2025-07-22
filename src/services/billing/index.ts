@@ -58,7 +58,7 @@ export const getBillingReportService = async (phoneNumber: string): Promise<Bill
       const totalCost = subscriber.plan.price + excessCost;
 
       // Add 1 day to the start date to make it inclusive
-      cycleStartDate.setDate(cycleStartDate.getDate() + 1);
+      cycleStartDate.setDate(cycleStartDate.getDate());
       
       billingCycles.push({
         startDate: cycleStartDate,

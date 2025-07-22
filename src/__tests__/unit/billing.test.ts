@@ -188,7 +188,7 @@ describe('Billing Service', () => {
 
       const result = await getBillingReportService(phoneNumber);
 
-      const expectedStartDate = new Date('2024-01-03');
+      const expectedStartDate = new Date('2024-01-02');
       const expectedEndDate = new Date('2024-01-31');
 
       expect(result.billingCycles[0].startDate.getDate()).toBe(expectedStartDate.getDate());
