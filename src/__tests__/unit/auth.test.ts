@@ -78,7 +78,9 @@ describe('Auth Services', () => {
           role: mockUser.role,
         },
         mockJwtSecret,
-        { expiresIn: '30m' }
+        { expiresIn: '30m',
+          algorithm: 'HS256'
+         }
       );
     });
 
@@ -271,7 +273,7 @@ describe('Auth Services', () => {
         const token = generateJWT(mockPayload.userId, mockPayload.username, mockPayload.role);
 
         expect(token).toBe('mocktoken');
-        expect(jwt.sign).toHaveBeenCalledWith(mockPayload, mockJwtSecret, { expiresIn: '30m' });
+        expect(jwt.sign).toHaveBeenCalledWith(mockPayload, mockJwtSecret, { expiresIn: '30m', algorithm: 'HS256' });
       });
 
       it('should throw error when JWT_SECRET is not configured', () => {

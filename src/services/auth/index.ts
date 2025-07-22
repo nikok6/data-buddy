@@ -34,6 +34,7 @@ export const generateJWT = (userId: number, username: string, role: UserRole): s
 
   return jwt.sign(payload, jwtSecret, {
     expiresIn: '30m', // 30 minutes
+    algorithm: 'HS256'
   });
 };
 
