@@ -1,5 +1,5 @@
 import { DataPlan } from '../../types';
-import { PlanRepository } from '../../repositories/plan-repository';
+import { PlanRepository } from '../../repositories/plan';
 
 let planRepository: PlanRepository = new PlanRepository();
 

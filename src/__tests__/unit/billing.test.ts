@@ -1,11 +1,11 @@
-import { UsageRepository } from '../../repositories/usage-repository';
-import { SubscriberRepository } from '../../repositories/subscriber-repository';
+import { UsageRepository } from '../../repositories/usage';
+import { SubscriberRepository } from '../../repositories/subscriber';
 import { getBillingReportService, initializeRepository } from '../../services/billing';
 import { SubscriberNotFoundError } from '../../types';
 
 // Mock repositories
-jest.mock('../../repositories/usage-repository');
-jest.mock('../../repositories/subscriber-repository');
+jest.mock('../../repositories/usage');
+jest.mock('../../repositories/subscriber');
 
 describe('Billing Service', () => {
   let mockUsageRepository: jest.Mocked<UsageRepository>;

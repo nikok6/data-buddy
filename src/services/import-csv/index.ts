@@ -1,7 +1,7 @@
 import { MultipartFile } from '@fastify/multipart';
 import { parse } from 'csv-parse';
 import { Readable } from 'stream';
-import { ImportRepository } from '../../repositories/import-repository';
+import { ImportRepository } from '../../repositories/import';
 import { ImportData, ImportResult } from '../../types';
 
 let importRepository: ImportRepository = new ImportRepository();

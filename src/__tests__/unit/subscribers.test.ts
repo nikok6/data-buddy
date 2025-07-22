@@ -1,4 +1,4 @@
-import { SubscriberRepository } from '../../repositories/subscriber-repository';
+import { SubscriberRepository } from '../../repositories/subscriber';
 import {
   getAllSubscribersService,
   getSubscriberByIdService,
@@ -10,7 +10,7 @@ import {
 import { SubscriberNotFoundError, InvalidPhoneNumberError, SubscriberExistsError } from '../../types';
 
 // Mock the repository
-jest.mock('../../repositories/subscriber-repository');
+jest.mock('../../repositories/subscriber');
 
 describe('Subscriber Services', () => {
   let mockRepository: jest.Mocked<SubscriberRepository>;

@@ -1,4 +1,4 @@
-import { SubscriberRepository } from '../../repositories/subscriber-repository';
+import { SubscriberRepository } from '../../repositories/subscriber';
 import { SubscriberNotFoundError, InvalidPhoneNumberError, SubscriberExistsError } from '../../types';
 
 // Initialize with default repository

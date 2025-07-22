@@ -1,10 +1,10 @@
 import { MultipartFile } from '@fastify/multipart';
 import { Readable } from 'stream';
-import { ImportRepository } from '../../repositories/import-repository';
+import { ImportRepository } from '../../repositories/import';
 import { importCsvService, initializeRepository } from '../../services/import-csv';
 
 // Mock repositories
-jest.mock('../../repositories/import-repository');
+jest.mock('../../repositories/import');
 
 describe('Import CSV Service', () => {
   let mockImportRepository: jest.Mocked<ImportRepository>;

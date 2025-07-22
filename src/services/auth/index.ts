@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { AuthRepository } from '../../repositories/auth-repository';
+import { AuthRepository } from '../../repositories/auth';
 import { UserRole, JWTPayload, AuthenticatedUser, AuthenticationError, InvalidCredentialsError, UserNotFoundError, InactiveUserError, InvalidOTPError, InvalidTokenError, UserExistsError } from '../../types';
 
 // Initialize with default repository

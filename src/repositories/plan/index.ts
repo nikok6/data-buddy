@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { DataPlan } from '../types';
+import { DataPlan } from '../../types';
 
 const prisma = new PrismaClient();
 

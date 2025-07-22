@@ -1,6 +1,6 @@
 import { BillingReport, BillingCycle, SubscriberNotFoundError } from '../../types';
-import { UsageRepository } from '../../repositories/usage-repository';
-import { SubscriberRepository } from '../../repositories/subscriber-repository';
+import { UsageRepository } from '../../repositories/usage';
+import { SubscriberRepository } from '../../repositories/subscriber';
 
 let usageRepository = new UsageRepository();
 let subscriberRepository = new SubscriberRepository();

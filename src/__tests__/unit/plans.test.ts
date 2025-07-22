@@ -1,9 +1,9 @@
-import { PlanRepository } from '../../repositories/plan-repository';
+import { PlanRepository } from '../../repositories/plan';
 import { getPlansService, createPlanService, updatePlanService, initializeRepository } from '../../services/plans';
 import { DataPlan } from '../../types';
 
 // Mock repository
-jest.mock('../../repositories/plan-repository');
+jest.mock('../../repositories/plan');
 
 describe('Plan Service', () => {
   let mockPlanRepository: jest.Mocked<PlanRepository>;

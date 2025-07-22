@@ -1,5 +1,5 @@
-import { UsageRepository } from '../../repositories/usage-repository';
-import { SubscriberRepository } from '../../repositories/subscriber-repository';
+import { UsageRepository } from '../../repositories/usage';
+import { SubscriberRepository } from '../../repositories/subscriber';
 import { SubscriberNotFoundError, InvalidPhoneNumberError, InvalidUsageError } from '../../types';
 
 // Initialize with default repository
