@@ -6,7 +6,7 @@ export default async function usageRoutes(fastify: FastifyInstance) {
   // All usage endpoints require admin authentication
   fastify.get('/api/usage', {
     preHandler: [authMiddleware, adminMiddleware]
-  }, getUsageController);
+  }, getUsageController); // GET /api/usage?phoneNumber=XYZ&startDate=YYYY-MM-DD&endDate=YYYY-MM-DD
   
   fastify.post('/api/usage', {
     preHandler: [authMiddleware, adminMiddleware]

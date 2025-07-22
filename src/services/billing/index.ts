@@ -36,17 +36,17 @@ export const getBillingReportService = async (phoneNumber: string): Promise<Bill
 
   // Calculate billing cycles within the date range
   const billingCycles: BillingCycle[] = [];
-  let currentDate = new Date(startDate);
+  let currentDate = new Date(endDate);
 
-  while (currentDate <= endDate) {
+  while (currentDate >= startDate) {
     const cycleStartDate = new Date(currentDate);
     const cycleEndDate = new Date(currentDate);
-    cycleEndDate.setDate(cycleEndDate.getDate() + subscriber.plan.billingCycleInDays - 1);
+    cycleStartDate.setDate(cycleStartDate.getDate() - (subscriber.plan.billingCycleInDays - 1));
     cycleStartDate.setHours(0, 0, 0, 0);
     cycleEndDate.setHours(23, 59, 59, 999);
 
     // Only include full billing cycles
-    if (cycleEndDate <= endDate) {
+    if (cycleStartDate >= startDate) {
       const cycleUsage = usageRecords.filter(usage => 
         usage.date >= cycleStartDate && usage.date <= cycleEndDate
       );
@@ -72,8 +72,8 @@ export const getBillingReportService = async (phoneNumber: string): Promise<Bill
       });
     }
 
-    // Move to next cycle
-    currentDate.setDate(currentDate.getDate() + subscriber.plan.billingCycleInDays);
+    // Move to previous cycle
+    currentDate.setDate(currentDate.getDate() - subscriber.plan.billingCycleInDays);
   }
 
   const totalCost = billingCycles.reduce((sum, cycle) => sum + cycle.totalCost, 0);

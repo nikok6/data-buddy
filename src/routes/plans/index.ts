@@ -6,7 +6,7 @@ const plansRoutes: FastifyPluginAsync = async (fastify) => {
   // All plans endpoints require admin authentication
   fastify.get('/api/plans', {
     preHandler: [authMiddleware, adminMiddleware]
-  }, getPlansController);
+  }, getPlansController); // GET /api/plans?provider=XYZ optional
   
   fastify.post('/api/plans', {
     preHandler: [authMiddleware, adminMiddleware]

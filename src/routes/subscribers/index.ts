@@ -16,11 +16,11 @@ export default async function subscriberRoutes(fastify: FastifyInstance) {
   
   fastify.get('/api/subscribers/:id', {
     preHandler: [authMiddleware, adminMiddleware]
-  }, getSubscriberByIdController);
+  }, getSubscriberByIdController); // GET /api/subscribers/:id
   
   fastify.get('/api/subscribers/phone', {
     preHandler: [authMiddleware, adminMiddleware]
-  }, getSubscriberByPhoneController);
+  }, getSubscriberByPhoneController); // GET /api/subscribers/phone?phoneNumber=XYZ
   
   fastify.post('/api/subscribers', {
     preHandler: [authMiddleware, adminMiddleware]
